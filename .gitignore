@@ -1,6 +1,8 @@
 #directories
 .vs/
-x64/Debug
+x64/*
+*.x64/*
+*.*.x64/*
 
 # Files
 *.user

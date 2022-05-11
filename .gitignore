@@ -1,0 +1,7 @@
+#directories
+.vs/
+x64/Debug
+
+# Files
+*.user
+*.*.filters

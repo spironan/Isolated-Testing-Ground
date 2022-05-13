@@ -146,7 +146,12 @@
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\SIMD.h" />
+    <ClInclude Include="src\utils\ReentrantLock.h" />
+    <ClInclude Include="src\utils\ScopedLock.h" />
+    <ClInclude Include="src\utils\SpinLock.h" />
     <ClInclude Include="src\utils\Timer.h" />
+    <ClInclude Include="src\utils\UnnecessaryLock.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

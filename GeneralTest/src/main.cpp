@@ -56,9 +56,9 @@ int main()
         simd::TestAddSSE();
     }*/
 
-    static constexpr std::size_t dividable_by_four_size = 4096 * 4096 * 16;
+    /*static constexpr std::size_t dividable_by_four_size = 4096 * 4096 * 6;
     static_assert(dividable_by_four_size % 4 == 0);
-    static_assert(dividable_by_four_size < std::numeric_limits<std::size_t>::max());
+    static_assert(dividable_by_four_size <= std::numeric_limits<std::size_t>::max());
     float* arrA, *arrB, *res;
     arrA = new float[dividable_by_four_size];
     arrB = new float[dividable_by_four_size];
@@ -82,6 +82,24 @@ int main()
 
     delete[] arrA;
     delete[] arrB;
-    delete[] res;
+    delete[] res;*/
 
+    Profiler profile("programme total lifetime");
+
+    {
+        static constexpr std::size_t dividable_by_four_size = 4096 * 4096;
+        static_assert(dividable_by_four_size % 4 == 0);
+        static_assert(dividable_by_four_size <= std::numeric_limits<std::size_t>::max());
+        Profiler profile("glm dot products for " + std::to_string(dividable_by_four_size));
+        simd::GLMDotProduct(dividable_by_four_size);
+    }
+
+    {
+        static constexpr std::size_t dividable_by_four_size = 4096 * 4096;
+        static_assert(dividable_by_four_size % 4 == 0);
+        static_assert(dividable_by_four_size <= std::numeric_limits<std::size_t>::max());
+        Profiler profile("glm matrix multiply for " + std::to_string(dividable_by_four_size));
+        simd::GLMMatrixMultiply(dividable_by_four_size);
+    }
+    
 }

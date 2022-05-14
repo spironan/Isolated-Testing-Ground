@@ -4,6 +4,14 @@
 #include <iostream>
 #include <cassert>
 
+#define GLM_FORCE_PURE
+#define GLM_FORCE_SSE42 //GLM_FORCE_SSE2 or GLM_FORCE_SSE42 if your processor supports it
+//#define GLM_FORCE_SIMD_AVX2
+#define GLM_FORCE_ALIGNED
+//#define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
+#include <glm/glm.hpp>
+#include <glm/matrix.hpp>
+
 namespace simd
 {
     __m128 g_reg;
@@ -178,5 +186,39 @@ namespace simd
             result = _mm_add_ps(result, _mm_mul_ps(vaW, vbW));
             _mm_store_ps(&r[i], result);
         }
+    }
+
+    void GLMMatrixMultiply(size_t dividable_by_four_size)
+    {
+        //assert(dividable_by_four_size % 4 == 0);
+        //assert(dividable_by_four_size <= std::numeric_limits<std::size_t>::max());
+        glm::mat4 testMatA = glm::mat4{ 1.0f, 2.0f, 3.0f, 4.0f, 10.0f, 20.0f, 30.0f, 40.0f, 100.0f, 200.0f, 300.0f, 400.0f, 1000.0f, 2000.0f, 3000.0f, 4000.0f };
+        glm::mat4 testMatB = glm::mat4{ 1.0f, 2.0f, 3.0f, 4.0f, 10.0f, 20.0f, 30.0f, 40.0f, 100.0f, 200.0f, 300.0f, 400.0f, 1000.0f, 2000.0f, 3000.0f, 4000.0f };
+        glm::mat4 resMat = glm::mat4{ 1.f };
+        for (std::size_t i = 1; i <= dividable_by_four_size; ++i)
+        {
+            resMat = testMatA * testMatB;
+            testMatA *= i;
+            testMatB *= i;
+            //testMat *= testMat;
+        }
+        
+    }
+
+    void GLMDotProduct(size_t dividable_by_four_size)
+    {
+        //assert(dividable_by_four_size % 4 == 0);
+        //assert(dividable_by_four_size <= std::numeric_limits<std::size_t>::max());
+        
+        glm::vec4 testA{ 1,2,3,4 }, testB{ 2,4,6,8 };
+        float res{ 0.f };
+        for (std::size_t i = 1; i <= dividable_by_four_size; ++i)
+        {
+            res = glm::dot(testA, testB);
+            testA *= i;
+            testB *= i;
+            //testMat *= testMat;
+        }
+        //std::cout << res << std::endl;
     }
 }

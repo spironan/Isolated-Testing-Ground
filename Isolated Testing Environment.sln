@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "JobSystem", "JobSystem\JobS
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GeneralTest", "GeneralTest\GeneralTest.vcxproj", "{BFF7AAE4-55BF-4242-9AD3-52D5D9308137}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SharedLibrary", "SharedLibrary\SharedLibrary.vcxproj", "{9E276D60-E57B-4ED2-BF70-5496C7D947ED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -51,6 +53,14 @@ Global
 		{BFF7AAE4-55BF-4242-9AD3-52D5D9308137}.Release|x64.Build.0 = Release|x64
 		{BFF7AAE4-55BF-4242-9AD3-52D5D9308137}.Release|x86.ActiveCfg = Release|Win32
 		{BFF7AAE4-55BF-4242-9AD3-52D5D9308137}.Release|x86.Build.0 = Release|Win32
+		{9E276D60-E57B-4ED2-BF70-5496C7D947ED}.Debug|x64.ActiveCfg = Debug|x64
+		{9E276D60-E57B-4ED2-BF70-5496C7D947ED}.Debug|x64.Build.0 = Debug|x64
+		{9E276D60-E57B-4ED2-BF70-5496C7D947ED}.Debug|x86.ActiveCfg = Debug|Win32
+		{9E276D60-E57B-4ED2-BF70-5496C7D947ED}.Debug|x86.Build.0 = Debug|Win32
+		{9E276D60-E57B-4ED2-BF70-5496C7D947ED}.Release|x64.ActiveCfg = Release|x64
+		{9E276D60-E57B-4ED2-BF70-5496C7D947ED}.Release|x64.Build.0 = Release|x64
+		{9E276D60-E57B-4ED2-BF70-5496C7D947ED}.Release|x86.ActiveCfg = Release|Win32
+		{9E276D60-E57B-4ED2-BF70-5496C7D947ED}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -230,7 +230,6 @@ public:
     }
 };
 
-
 using Entity = size_t;
 Scenegraph<Entity> g_sceneGraph{"testSceneGraph"};    // global scenegraph
 //std::unordered_map<oo::UUID, Entity> g_MasterMap;

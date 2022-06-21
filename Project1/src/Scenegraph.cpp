@@ -4,6 +4,7 @@
 
 #include "UUID.h"
 #include <unordered_map>
+#include <cassert>
 
 class Node
 {
@@ -158,10 +159,16 @@ void Print(Node const* node)
     std::cout << "total childs : " << totalChilds << std::endl;
 }
 
+// System will have one scenegraph object at any point in time.
+template<typename Data>
 struct Scenegraph
 {
+public:
+    using Key = oo::UUID;
 private:
+    
     Node m_root;
+    std::unordered_map<Key, Data> m_data;
 public:
     Scenegraph(std::string const& name) : m_root{ name, 0 } {}
 
@@ -169,10 +176,11 @@ public:
     {
         m_root.printRecursive();
     }
-    
-    void AddChildToRoot(Node* child)
+
+    void AddChildToRoot(Node* child, Data data)
     {
         m_root.addChild(child);
+        m_data[child->getHandle()] = data;
     }
 
     void AddChild(Node* parent, Node* child)
@@ -180,22 +188,52 @@ public:
         parent->addChild(child);
     }
 
-    std::vector<Node::handle_type> GetChilds(Node const* target, bool includeItself) const
+    Node GetRoot() const
     {
+        return m_root;
+    }
+
+    std::vector<Data> GetChilds(Node const* target, bool includeItself) const
+    {
+        auto vec = target->getAllChildHandles();
+        std::vector<Data> result;
+        for (auto& elem : vec)
+        {
+            if (m_data.contains(elem))
+                result.emplace_back(m_data.at(elem));
+        }
+
         if (includeItself)
         {
 
         }
-        
-        return target->getAllChildHandles();
+
+        return result;
     }
 
+    Data GetParent(Node const * target) const
+    {
+        return GetData(target->getParentHandle());
+    }
+
+    Data GetData(Node const* target) const
+    {
+        assert(target == nullptr);
+        assert(m_data.contains(target->getHandle()) == false);
+
+        return m_data.at(target->getHandle());
+    }
+
+    Data GetData(Key handle) const
+    {
+        return m_data.at(handle);
+    }
 };
 
-Scenegraph g_sceneGraph{"testScene"};    // global scenegraph
 
 using Entity = size_t;
-std::unordered_map<oo::UUID, Entity> g_MasterMap;
+Scenegraph<Entity> g_sceneGraph{"testSceneGraph"};    // global scenegraph
+//std::unordered_map<oo::UUID, Entity> g_MasterMap;
 
 class GameObject
 {
@@ -213,13 +251,13 @@ public:
 
     GameObject(std::string const& name) : m_node{ name, oo::UUID{} }
     {
-        g_sceneGraph.AddChildToRoot(&m_node);
-        g_MasterMap[m_node.getHandle()] = m_entt;
+        g_sceneGraph.AddChildToRoot(&m_node, m_entt);
+        //g_MasterMap[m_node.getHandle()] = m_entt;
     }
     
     GameObject(std::string const& name, oo::UUID uuid) : m_node{ name, uuid }
     {
-        g_sceneGraph.AddChildToRoot(&m_node);
+        g_sceneGraph.AddChildToRoot(&m_node, m_entt);
     }
 
     void Print() const
@@ -241,15 +279,19 @@ public:
 
     GameObject GetParent()
     {
-        return static_cast<GameObject>(g_MasterMap.at(m_node.getParentHandle()));
+        return static_cast<GameObject>(g_sceneGraph.GetParent(&m_node));
+        //return static_cast<GameObject>(g_MasterMap.at(m_node.getParentHandle()));
     }
 
     std::vector<GameObject> GetChilds(bool includeItself = false)
     {
         std::vector<GameObject> res;
-        for (auto& uuid : g_sceneGraph.GetChilds(&m_node, includeItself))
+        for (auto& entt : g_sceneGraph.GetChilds(&m_node, includeItself))
+            res.emplace_back(entt);
+        /*for (auto& uuid : g_sceneGraph.GetChilds(&m_node, includeItself))
             if (uuid != Node::NOTFOUND)
-                res.emplace_back(g_MasterMap.at(uuid));
+                res.emplace_back(g_sceneGraph.GetData(&m_node));*/
+                //res.emplace_back(g_MasterMap.at(uuid));
 
         return res;
     }
@@ -275,10 +317,10 @@ int main()
     GameObject go2("go2");
     go.AddChild(go1);
     go1.AddChild(go2);
-    go2.AddChild(go);
-    go.Destroy();
-    go1.Destroy();
-    go2.Destroy();
+    //go2.AddChild(go);
+    //go.Destroy();
+    //go1.Destroy();
+    //go2.Destroy();
     PrintGo(&go);
 
     std::cout << "getting child of " << go.GetEntity() << std::endl;

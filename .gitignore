@@ -9,3 +9,6 @@ x64/*
 *.*.filters
 Quarternion/x64
 Project1/x64
+Debug
+GeneralTest/x64
+JobSystem/x64

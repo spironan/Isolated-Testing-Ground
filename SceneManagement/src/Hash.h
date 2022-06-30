@@ -3,7 +3,7 @@
 \project        Ouroboros
 \author         Chua Teck Lee, c.tecklee, 390008420 | code contribution (100%)
 \par            email: c.tecklee\@digipen.edu
-\date           June 14, 2021
+\date           June 14, 2022
 \brief          Contains a utility hashing class that stores the various hashing algorithms
                 currently only supports fnv-1a hash.
 
@@ -25,13 +25,6 @@ struct StringHash
 public:
     using size_type = uint32_t;
 
-    constexpr static size_t const_strlen(const char* s)
-    {
-        size_t size = 0;
-        while (s[size]) { size++; };
-        return size;
-    }
-
     /****************************************************************************//*!
         @brief Implementations the FNV-1a hashing algorithm.
             The fnv-1a implementation provides better avalanche characteristics
@@ -42,7 +35,7 @@ public:
 
         @return returns the hashed fnv-1a output.
     *//*****************************************************************************/
-    constexpr static size_type  GenerateFNV1aHash(const char* str)
+    static constexpr size_type  GenerateFNV1aHash(const char* str)
     {
         // Also C++ does not like static constexpr
         constexpr size_type FNV_PRIME = 16777619u;
@@ -57,26 +50,27 @@ public:
         }
         return hash;
     }
-    constexpr static size_type GenerateFNV1aHash(std::string_view string)
+    static constexpr size_type GenerateFNV1aHash(std::string_view string)
     {
         return GenerateFNV1aHash(string.data());
     }
+    static constexpr size_t const_strlen(const char* s)
+    {
+        size_t size = 0;
+        while (s[size]) { size++; };
+        return size;
+    }
 
+private:
     size_type computedHash;
 
-    constexpr StringHash(size_type hash) noexcept : computedHash(hash) {}
-
-    constexpr StringHash(const char* s) noexcept : computedHash(0)
-    {
-        computedHash = GenerateFNV1aHash(s);
-    }
-    constexpr StringHash(std::string_view s) noexcept : computedHash(0)
-    {
-        computedHash = GenerateFNV1aHash(s.data());
-    }
+public:
     StringHash(const StringHash& other) = default;
+    constexpr StringHash(size_type hash) noexcept;
+    constexpr StringHash(const char* s) noexcept;
+    constexpr StringHash(std::string_view s) noexcept;
 
-    constexpr operator size_type()noexcept { return computedHash; }
-    constexpr bool operator==(const StringHash other)noexcept { return computedHash == other.computedHash; }
+    constexpr operator size_type()noexcept;
+    constexpr bool operator==(const StringHash other) noexcept;
     //constexpr bool operator<(const StringHash other)noexcept { return computedHash < other.computedHash; }
 };

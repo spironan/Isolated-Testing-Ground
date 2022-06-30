@@ -27,11 +27,9 @@ class SceneManager final
 public:
     using key_type = IScene::ID_type;
     using container_type = std::map<key_type, std::shared_ptr<IScene>>;
+    using result = std::pair<bool, key_type>;
 
     static constexpr key_type NO_SCENE = std::numeric_limits<key_type>::max();
-private:
-    SceneManager();
-    ~SceneManager();
 
 private:
     container_type m_scenes{};
@@ -41,9 +39,11 @@ private:
     
     std::shared_ptr<IScene> m_loadingScene = nullptr;
     bool m_loading = false;
-public:
 
-    using result = std::pair<bool, key_type>;
+public:
+    SceneManager();
+    ~SceneManager();
+
     template <typename Derived, class ... Args>
     result CreateNewScene(std::string_view name, Args&&...args)
     {
@@ -54,7 +54,7 @@ public:
         if (m_scenes.contains(key))
             return { false, NO_SCENE };
 
-        auto new_scene = std::make_shared<Derived>(args...);
+        std::shared_ptr<IScene> new_scene = std::make_shared<Derived>(args...);
         m_scenes.emplace(key, new_scene);
         new_scene->m_id = key;
 
@@ -66,7 +66,6 @@ public:
     std::shared_ptr<IScene> GetActiveScene() const;
     bool HasScene(key_type id) const;
     bool IsActiveScene(key_type id) const;
-
 
     bool SetLoadingScene(key_type id);
     bool SetActiveScene(key_type id);
@@ -80,5 +79,9 @@ public:
     void Terminate();
 
     bool RemoveScene(std::string_view filename);
+
+private:
+    void LoadScene(std::shared_ptr<IScene> scene);
+    void UnloadScene(std::shared_ptr<IScene> scene);
 };
 

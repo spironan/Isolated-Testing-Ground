@@ -2,7 +2,6 @@
 
 SceneManager::SceneManager()
 {
-    Init();
 }
 
 SceneManager::~SceneManager()
@@ -54,7 +53,7 @@ bool SceneManager::SetActiveScene(key_type id)
     if (IsActiveScene(id))
         ReloadActiveScene();
     else
-        m_nextScene = m_scenes.find(id)->second;
+        m_nextScene = m_scenes.at(id);
 
     return true;
 }
@@ -67,7 +66,8 @@ bool SceneManager::ChangeScene(key_type id)
 bool SceneManager::ChangeScene(std::string_view name)
 {
     // calls SceneManager::ChangeScene(key_type id)
-    return ChangeScene(StringHash::GenerateFNV1aHash(name));
+    key_type key = StringHash::GenerateFNV1aHash(name);
+    return ChangeScene(key);
 }
 
 void SceneManager::ChangeScene(std::shared_ptr<IScene> scene)
@@ -80,6 +80,7 @@ bool SceneManager::ReloadActiveScene()
     if (HasActiveScene())
     {
         m_activeScene->ReloadScene();
+        m_activeScene->Init();
         return true;
     }
 
@@ -92,10 +93,7 @@ void SceneManager::Init()
     {
         m_activeScene = m_nextScene;
 
-        if (m_activeScene)
-        {
-            m_activeScene->LoadScene();
-        }
+        LoadScene(m_activeScene);
     }
 }
 
@@ -114,10 +112,14 @@ void SceneManager::Update()
                 if (progress.Completed)
                 {
                     // unload the loading-scene
-                    m_activeScene->UnloadScene();
+                    UnloadScene(m_activeScene);
+
                     // set active scene to new scene after its finished loading
                     m_activeScene = m_nextScene;
-                    
+
+                    // explicitly init active scene (no need to load cause its already loaded)
+                    m_activeScene->Init();
+
                     m_loading = false;
                 }
             }
@@ -125,29 +127,28 @@ void SceneManager::Update()
             // B) Currently not loading and looking to change scene.
             else if (m_activeScene)
             {
-                m_activeScene->UnloadScene();
-            
+                UnloadScene(m_activeScene);
+
                 // only go to loading scene, if theres one and if next scene exist as well.
                 if (m_loadingScene && m_nextScene && m_activeScene != m_loadingScene)
                 {
                     m_activeScene = m_loadingScene;
                     
-                    //start loading next scene
+                    //explicitly start loading next scene (async)
                     m_nextScene->LoadScene();
+                    m_nextScene->m_isLoaded = true;
 
-                    //load loading scene
-                    m_activeScene->LoadScene();
+                    //load and init loading scene
+                    LoadScene(m_activeScene);
+
                     m_loading = true;
                 }
                 // Perform the old method : directly change to assigned scene and start loading
                 else
                 {
                     m_activeScene = m_nextScene;
-
-                    if (m_activeScene)
-                    {
-                        m_activeScene->LoadScene();
-                    }
+                    
+                    LoadScene(m_activeScene);
                 }
             }
         }
@@ -172,11 +173,9 @@ void SceneManager::Update()
 
 void SceneManager::Terminate()
 {
-    if(m_activeScene)
-        m_activeScene->UnloadScene();
-    
-    if (m_loadingScene)
-        m_loadingScene->UnloadScene();
+    UnloadScene(m_activeScene);
+    UnloadScene(m_loadingScene);
+    UnloadScene(m_nextScene);
 
     m_activeScene = m_nextScene = m_loadingScene = nullptr;
     m_scenes.clear();
@@ -184,7 +183,7 @@ void SceneManager::Terminate()
 
 bool SceneManager::RemoveScene(std::string_view filename)
 {
-    auto key = StringHash::GenerateFNV1aHash(filename);
+    key_type key = StringHash::GenerateFNV1aHash(filename);
 
     if (m_scenes.contains(key))
     {
@@ -193,4 +192,24 @@ bool SceneManager::RemoveScene(std::string_view filename)
     }
 
     return false;
+}
+
+void SceneManager::LoadScene(std::shared_ptr<IScene> scene)
+{
+    if (scene && !scene->IsLoaded())
+    {
+        scene->LoadScene();
+        scene->m_isLoaded = true;
+
+        scene->Init();
+    }
+}
+
+void SceneManager::UnloadScene(std::shared_ptr<IScene> scene)
+{
+    if (scene && scene->IsLoaded())
+    {
+        scene->UnloadScene();
+        scene->m_isLoaded = false;
+    }
 }

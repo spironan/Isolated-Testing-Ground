@@ -13,6 +13,8 @@ Technology is prohibited.
 *//*************************************************************************************/
 #pragma once
 
+#include "Hash.h"
+
 struct LoadStatus
 {
     bool Completed = false;
@@ -24,7 +26,7 @@ class IScene
 {
 public:
     // ID used to index the scene in scene manager
-    using ID_type = std::size_t;
+    using ID_type = StringHash::size_type;
 
 public:
     virtual void Init() = 0;
@@ -41,7 +43,9 @@ public:
     virtual LoadStatus GetProgress() = 0;
 
     ID_type GetID() const { return m_id; }
+    bool IsLoaded() const { return m_isLoaded; }
 private:
     friend class SceneManager;
     ID_type m_id;
+    bool m_isLoaded = false;
 };

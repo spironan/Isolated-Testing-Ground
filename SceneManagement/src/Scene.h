@@ -13,6 +13,12 @@ Technology is prohibited.
 *//*************************************************************************************/
 #pragma once
 
+struct LoadStatus
+{
+    bool Completed = false;
+    float Progress = 0.f;
+};
+
 // Interface class
 class IScene
 {
@@ -31,6 +37,8 @@ public:
     virtual void LoadScene() = 0;
     virtual void UnloadScene() = 0;
     virtual void ReloadScene() = 0;
+
+    virtual LoadStatus GetProgress() = 0;
 
     ID_type GetID() const { return m_id; }
 private:

@@ -38,9 +38,11 @@ private:
 
     std::shared_ptr<IScene> m_activeScene = nullptr;
     std::shared_ptr<IScene> m_nextScene = nullptr;
-
-public:
     
+    std::shared_ptr<IScene> m_loadingScene = nullptr;
+    bool m_loading = false;
+public:
+
     using result = std::pair<bool, key_type>;
     template <typename Derived, class ... Args>
     result CreateNewScene(std::string_view name, Args&&...args)
@@ -60,20 +62,23 @@ public:
     }
 
     bool HasActiveScene() const;
+    bool HasLoadingScene() const;
     std::shared_ptr<IScene> GetActiveScene() const;
     bool HasScene(key_type id) const;
-    bool HasActiveScene(key_type id) const;
+    bool IsActiveScene(key_type id) const;
 
+
+    bool SetLoadingScene(key_type id);
     bool SetActiveScene(key_type id);
     bool ChangeScene(key_type id);
     bool ChangeScene(std::string_view name);
     void ChangeScene(std::shared_ptr<IScene> scene);
     bool ReloadActiveScene();
-    bool RemoveScene(std::string_view filename);
 
     void Init();
     void Update();
     void Terminate();
 
+    bool RemoveScene(std::string_view filename);
 };
 

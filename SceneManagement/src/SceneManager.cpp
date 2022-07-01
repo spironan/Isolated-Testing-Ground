@@ -129,8 +129,9 @@ void SceneManager::Update()
             {
                 UnloadScene(m_activeScene);
 
-                // only go to loading scene, if theres one and if next scene exist as well.
-                if (m_loadingScene && m_nextScene && m_activeScene != m_loadingScene)
+                // only go to loading scene if theres one and if next scene exist as well.
+                // also make sure that loading scene is not the direct next scene.
+                if (m_loadingScene && m_nextScene && m_loadingScene != m_nextScene && m_activeScene != m_loadingScene)
                 {
                     m_activeScene = m_loadingScene;
                     

@@ -118,6 +118,16 @@ int main()
         sceneManager.Update();
         std::cout << "=========================================================\n";
 
+        std::cout << "Change Scene To Loading " << sceneManager.ChangeScene(load_key) << std::endl;
+
+        std::cout << "=========================================================\n";
+        sceneManager.Update();
+        std::cout << "=========================================================\n";
+
+        std::cout << "=========================================================\n";
+        sceneManager.Update();
+        std::cout << "=========================================================\n";
+
         std::cout << "=========================================================\n";
         std::cout << "Terminating\n";
         sceneManager.Terminate();

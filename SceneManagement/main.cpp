@@ -76,9 +76,9 @@ int main()
     {
         SceneManager sceneManager;
 
-        auto [menu_success, menu_key] = sceneManager.CreateNewScene<Scene>("Start Menu", "Start Menu");
-        auto [loading_success, load_key] = sceneManager.CreateNewScene<Scene>("Loading Scene", "Loading Scene");
-        auto [main_success, main_key] = sceneManager.CreateNewScene<Scene>("Main Scene", "Main Scene");
+        auto [menu_success, menu_key, menu_scene] = sceneManager.CreateNewScene<Scene>("Start Menu", "Start Menu");
+        auto [loading_success, load_key, load_scene] = sceneManager.CreateNewScene<Scene>("Loading Scene", "Loading Scene");
+        auto [main_success, main_key, main_scene] = sceneManager.CreateNewScene<Scene>("Main Scene", "Main Scene");
         
         if (loading_success)
         {

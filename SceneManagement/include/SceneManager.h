@@ -15,7 +15,7 @@ Technology is prohibited.
 #pragma once
 
 #include "../src/Hash.h"
-#include "Scene.h"
+#include "IScene.h"
 
 #include <map>
 #include <memory>
@@ -27,9 +27,12 @@ class SceneManager final
 public:
     using key_type = IScene::ID_type;
     using container_type = std::map<key_type, std::shared_ptr<IScene>>;
-    using result = std::pair<bool, key_type>;
+    
+    template<typename derived>
+    using result = std::tuple<bool, key_type, std::shared_ptr<derived>>;
 
     static constexpr key_type NO_SCENE = std::numeric_limits<key_type>::max();
+    static constexpr key_type REMOVED  = std::numeric_limits<key_type>::max();
 
 private:
     container_type m_scenes{};
@@ -45,25 +48,28 @@ public:
     ~SceneManager();
 
     template <typename Derived, class ... Args>
-    result CreateNewScene(std::string_view name, Args&&...args)
+    result<Derived> CreateNewScene(std::string_view name, Args&&...args)
     {
         static_assert(std::is_base_of_v<IScene, Derived>, "Scene must be derived from IScene class!");
 
         key_type key = StringHash::GenerateFNV1aHash(name);
 
         if (m_scenes.contains(key))
-            return { false, NO_SCENE };
+            return { false, NO_SCENE , nullptr };
 
-        std::shared_ptr<IScene> new_scene = std::make_shared<Derived>(args...);
+        std::shared_ptr<Derived> dervied_scene = std::make_shared<Derived>(args...);
+        std::shared_ptr<IScene> new_scene = dervied_scene;
         m_scenes.emplace(key, new_scene);
         new_scene->m_id = key;
 
-        return { true, new_scene->GetID() };
+        return { true, new_scene->GetID(), dervied_scene };
     }
+    
 
     bool HasActiveScene() const;
     bool HasLoadingScene() const;
     std::shared_ptr<IScene> GetActiveScene() const;
+    std::shared_ptr<IScene> GetScene(key_type id) const;
     bool HasScene(key_type id) const;
     bool IsActiveScene(key_type id) const;
 
@@ -71,7 +77,7 @@ public:
     bool SetActiveScene(key_type id);
     bool ChangeScene(key_type id);
     bool ChangeScene(std::string_view name);
-    void ChangeScene(std::shared_ptr<IScene> scene);
+    bool ChangeScene(std::shared_ptr<IScene> scene);
     bool ReloadActiveScene();
 
     void Init();

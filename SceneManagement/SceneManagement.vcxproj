@@ -148,6 +148,7 @@
     <ClCompile Include="src\SceneManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\IScene.h" />
     <ClInclude Include="src\Hash.h" />
     <ClInclude Include="include\Scene.h" />
     <ClInclude Include="include\SceneManager.h" />

@@ -1,4 +1,4 @@
-#include "../include/SceneManager.h"
+#include "..\include\SceneManager.h"
 
 SceneManager::SceneManager()
 {
@@ -11,7 +11,7 @@ SceneManager::~SceneManager()
 
 bool SceneManager::HasActiveScene() const
 {
-    return m_activeScene.get() != nullptr;
+    return m_activeScene != nullptr;
 }
 
 bool SceneManager::HasLoadingScene() const
@@ -22,6 +22,14 @@ bool SceneManager::HasLoadingScene() const
 std::shared_ptr<IScene> SceneManager::GetActiveScene() const
 {
     return m_activeScene;
+}
+
+std::shared_ptr<IScene> SceneManager::GetScene(key_type id) const
+{
+    if (!HasScene(id))
+        return nullptr;
+
+    return m_scenes.at(id);
 }
 
 bool SceneManager::HasScene(key_type id) const
@@ -70,9 +78,10 @@ bool SceneManager::ChangeScene(std::string_view name)
     return ChangeScene(key);
 }
 
-void SceneManager::ChangeScene(std::shared_ptr<IScene> scene)
+bool SceneManager::ChangeScene(std::shared_ptr<IScene> scene)
 {
-    m_nextScene = scene;
+    return scene != nullptr && SetActiveScene(scene->GetID());
+    //m_nextScene = scene;
 }
 
 bool SceneManager::ReloadActiveScene()
@@ -188,6 +197,7 @@ bool SceneManager::RemoveScene(std::string_view filename)
 
     if (m_scenes.contains(key))
     {
+        m_scenes.at(key)->m_id = REMOVED;
         m_scenes.erase(key);
         return true;
     }

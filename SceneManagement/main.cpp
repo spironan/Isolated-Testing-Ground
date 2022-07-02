@@ -1,5 +1,5 @@
-#include "Hash.h"
-#include "SceneManager.h"
+#include "src/Hash.h"
+#include "include/SceneManager.h"
 
 #include <string>
 #include <iostream>

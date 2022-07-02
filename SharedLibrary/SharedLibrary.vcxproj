@@ -148,7 +148,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\GameObject.cpp" />
-    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="src\Quaternion.cpp" />
     <ClCompile Include="src\Scenegraph.cpp" />
     <ClCompile Include="src\Transform.cpp" />
@@ -156,9 +156,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\GameObject.h" />
-    <ClInclude Include="src\Quaternion.h" />
-    <ClInclude Include="src\Scenegraph.h" />
-    <ClInclude Include="src\Transform.h" />
+    <ClInclude Include="include\Quaternion.h" />
+    <ClInclude Include="include\Scenegraph.h" />
+    <ClInclude Include="include\Transform.h" />
     <ClInclude Include="src\UUID.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

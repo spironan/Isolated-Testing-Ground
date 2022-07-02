@@ -1,4 +1,4 @@
-#include "Quaternion.h"
+#include "../include/Quaternion.h"
 #include <glm/gtc/type_ptr.hpp> 
 
 quaternion quaternion::identity()

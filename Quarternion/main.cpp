@@ -1,7 +1,38 @@
 #include <iostream>
-#include "GameObject.h"
+#include "src/Transform.h"
+
 
 void printvalues(Transform const& transform);
+
+int main()
+{
+    {
+        Transform rawTF;
+        printvalues(rawTF);
+    }
+
+    {
+        Transform transform;
+
+        transform.Position()    = {1, 1, 1};
+        transform.Scale()       = { 10, 10, 10 };
+        transform.SetEulerAngles({ 10, 20, 30 });
+
+        printvalues(transform);
+    }
+
+    {
+        Transform transform;
+
+        transform.Position()    = { .5f, 10, -1 };
+        transform.Scale()       = { 10, .2f, -2.f };
+        transform.SetEulerAngles({ 20, 20, 20});
+        transform.CalculateLocalTransform();
+        transform.SetGlobalTransform(transform.GetPosition(), transform.GetEulerAngles(), transform.GetScale());
+
+        printvalues(transform);
+    }
+}
 
 void printvalues(Transform const& transform)
 {
@@ -29,49 +60,3 @@ void printvalues(Transform const& transform)
     std::cout << "===========================================================\n";
 }
 
-
-int main()
-{
-    // Combined GameObject-Transform-SceneGraph Test
-    
-    GameObject go("go");
-    go.Transform().Position() = { 1, 0, 0 };
-    GameObject go1("go1");
-    go1.Transform().Position() = { 0, 1, 0 };
-    GameObject go2("go2");
-    go2.Transform().Position() = { 0, 0, 1 };
-    
-    go.AddChild(go1);
-    go1.AddChild(go2);
-    
-    // simulate transform update
-    for (auto& elem : g_sceneGraph.GetRootChilds())
-    {
-        auto& tf = g_sceneData.at(elem)->Transform();
-        if (tf.IsDirty())
-        {
-            tf.CalculateLocalTransform();
-        }
-        
-        SceneNode& sceneNode = g_sceneData.at(elem)->SceneNode();
-        
-        GameObject parent = *g_sceneData.at(sceneNode.getParentHandle());
-        auto parentTf = parent.GetTransform();
-        tf.m_globalTransform = parentTf.m_globalTransform * tf.m_localTransform;
-
-        for (auto& child : g_sceneGraph.GetChilds(&sceneNode))
-        {
-            g_sceneData.at(child)->Transform().m_dirty = true;
-        }
-        
-    }
-
-    //print values
-    for (auto& child : g_sceneGraph.GetRootChilds())
-    {
-        PrintGo(g_sceneData.at(child));
-        printvalues(g_sceneData.at(child)->GetTransform());
-    }
-    
-    g_sceneGraph.Print();
-}

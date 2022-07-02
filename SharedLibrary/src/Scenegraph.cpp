@@ -1,4 +1,4 @@
-#include "Scenegraph.h"
+#include "../include/Scenegraph.h"
 
 SceneNode::SceneNode(std::string const& name, handle_type handle) 
     : m_debugName{ name }

@@ -13,7 +13,7 @@ Technology is prohibited.
 *//*************************************************************************************/
 #pragma once
 
-#include "Hash.h"
+#include "../src/Hash.h"
 
 struct LoadStatus
 {

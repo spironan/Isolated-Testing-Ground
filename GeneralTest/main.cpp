@@ -2,9 +2,9 @@
 #include <new>
 #include <atomic>
 
-#include "utils/Timer.h"
+#include "src/utils/Timer.h"
 
-#include "SIMD.h"
+#include "src/SIMD.h"
 
 using namespace std;
 

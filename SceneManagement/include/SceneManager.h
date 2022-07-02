@@ -14,7 +14,7 @@ Technology is prohibited.
 *//*************************************************************************************/
 #pragma once
 
-#include "Hash.h"
+#include "../src/Hash.h"
 #include "Scene.h"
 
 #include <map>

@@ -1,7 +1,7 @@
-#include "utils/Timer.h"
-//#include "JobSystem.h"
+#include "src/utils/Timer.h"
+//#include "src/JobSystem.h"
 
-#include "2nd Attempt/JobSystem2.h"
+#include "src/2nd Attempt/JobSystem2.h"
 #include <string>
 #include <thread>
 

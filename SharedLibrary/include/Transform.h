@@ -10,6 +10,7 @@ struct Transform final
 public:
     using vec3 = glm::vec3;
     using mat4 = glm::mat4;
+    using quat = quaternion;
 
     Transform();
     
@@ -18,24 +19,24 @@ public:
     /*-----------------------------------------------------------------------------*/
     /* Getter Functions                                                            */
     /*-----------------------------------------------------------------------------*/
-    vec3        GetPosition()     const;
-    quaternion  GetRotationQuat() const;
-    vec3        GetEulerAngles()  const;
-    vec3        GetScale()        const;
+    vec3 GetPosition()     const;
+    quat GetRotationQuat() const;
+    vec3 GetEulerAngles()  const;
+    vec3 GetScale()        const;
 
-    vec3 LocalRight()          const;
-    vec3 LocalUp()             const;
-    vec3 LocalForward()        const;
+    vec3 LocalRight()      const;
+    vec3 LocalUp()         const;
+    vec3 LocalForward()    const;
 
-    vec3 GlobalRight()         const;
-    vec3 GlobalUp()            const;
-    vec3 GlobalForward()       const;
+    vec3 GlobalRight()     const;
+    vec3 GlobalUp()        const;
+    vec3 GlobalForward()   const;
 
-    mat4 GetLocalMatrix()      const;
-    mat4 GetGlobalMatrix()     const;
+    mat4 GetLocalMatrix()  const;
+    mat4 GetGlobalMatrix() const;
 
-    bool HasChanged()          const;
-    bool IsDirty()             const;
+    bool HasChanged()      const;
+    bool IsDirty()         const;
 
     /*-----------------------------------------------------------------------------*/
     /* Setter Functions                                                            */

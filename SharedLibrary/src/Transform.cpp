@@ -20,7 +20,7 @@ Transform::Transform()
 
 Transform::vec3 Transform::GetPosition() const { return m_position; }
 
-quaternion Transform::GetRotationQuat() const { return m_orientation.value; }
+Transform::quat Transform::GetRotationQuat() const { return m_orientation.value; }
 
 Transform::vec3 Transform::GetEulerAngles() const { return m_eulerRotation; } //auto res = quaternion::to_euler(m_orientation);  return { glm::degrees(res.x), glm::degrees(res.y), glm::degrees(res.z) }; }
 

@@ -85,9 +85,15 @@ int main()
     delete[] res;*/
 
     Profiler profile("programme total lifetime");
+    
+    std::cout << "SIMD" << std::endl;
 
     {
-        static constexpr std::size_t dividable_by_four_size = 4096 * 4096;
+#ifdef _DEBUG
+        static constexpr std::size_t dividable_by_four_size = 4096 * 512;
+#elif _RELEASE
+        static constexpr std::size_t dividable_by_four_size = 4096 * 4096 * 64;
+#endif
         static_assert(dividable_by_four_size % 4 == 0);
         static_assert(dividable_by_four_size <= std::numeric_limits<std::size_t>::max());
         Profiler profile("glm dot products for " + std::to_string(dividable_by_four_size));
@@ -95,11 +101,49 @@ int main()
     }
 
     {
-        static constexpr std::size_t dividable_by_four_size = 4096 * 4096;
+#ifdef _DEBUG
+        static constexpr std::size_t dividable_by_four_size = 4096 * 256;
+#elif _RELEASE
+        static constexpr std::size_t dividable_by_four_size = 4096 * 1024;
+#endif
         static_assert(dividable_by_four_size % 4 == 0);
         static_assert(dividable_by_four_size <= std::numeric_limits<std::size_t>::max());
         Profiler profile("glm matrix multiply for " + std::to_string(dividable_by_four_size));
         simd::GLMMatrixMultiply(dividable_by_four_size);
     }
-    
+    std::cout << "========================================================" << std::endl;
+
+//    #undef GLM_FORCE_PURE
+//    #undef GLM_FORCE_SSE42 //GLM_FORCE_SSE2 or GLM_FORCE_SSE42 if your processor supports it
+//    //#define GLM_FORCE_SIMD_AVX2
+//    #undef GLM_FORCE_ALIGNED
+//
+//    std::cout << "STANDARD" << std::endl;
+//
+//    {
+//#ifdef _DEBUG
+//        static constexpr std::size_t dividable_by_four_size = 4096 * 512;
+//#elif _RELEASE
+//        static constexpr std::size_t dividable_by_four_size = 4096 * 4096 * 64;
+//#endif
+//        static_assert(dividable_by_four_size % 4 == 0);
+//        static_assert(dividable_by_four_size <= std::numeric_limits<std::size_t>::max());
+//        Profiler profile("glm dot products for " + std::to_string(dividable_by_four_size));
+//        simd::GLMDotProduct(dividable_by_four_size);
+//    }
+//
+//    {
+//#ifdef _DEBUG
+//        static constexpr std::size_t dividable_by_four_size = 4096 * 256;
+//#elif _RELEASE
+//        static constexpr std::size_t dividable_by_four_size = 4096 * 1024;
+//#endif
+//        static_assert(dividable_by_four_size % 4 == 0);
+//        static_assert(dividable_by_four_size <= std::numeric_limits<std::size_t>::max());
+//        Profiler profile("glm matrix multiply for " + std::to_string(dividable_by_four_size));
+//        simd::GLMMatrixMultiply(dividable_by_four_size);
+//    }
+//    
+//    std::cout << "========================================================" << std::endl;
+
 }

@@ -1,6 +1,6 @@
 #pragma once
-#include "../include/Scenegraph.h"
-#include "../include/Transform.h"
+#include "Scenegraph.h"
+#include "Transform.h"
 
 
 // class is an encapsulation of both scenegraph and transform as a means of testing

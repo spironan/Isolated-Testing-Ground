@@ -29,7 +29,6 @@ void printvalues(Transform const& transform)
     std::cout << "===========================================================\n";
 }
 
-
 int main()
 {
     // Combined GameObject-Transform-SceneGraph Test

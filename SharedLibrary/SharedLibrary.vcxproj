@@ -89,7 +89,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)vendor\glm</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)vendor\glm;$(SolutionDir)Quaternion\include;$(SolutionDir)Scenegraph\include;$(SolutionDir)SceneManagement\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -105,7 +105,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)vendor\glm</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)vendor\glm;$(SolutionDir)Quaternion\include;$(SolutionDir)Scenegraph\include;$(SolutionDir)SceneManagement\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -121,7 +121,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)vendor\glm</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)vendor\glm;$(SolutionDir)Quaternion\include;$(SolutionDir)Scenegraph\include;$(SolutionDir)SceneManagement\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -137,7 +137,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)vendor\glm</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)vendor\glm;$(SolutionDir)Quaternion\include;$(SolutionDir)Scenegraph\include;$(SolutionDir)SceneManagement\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -149,17 +149,26 @@
   <ItemGroup>
     <ClCompile Include="src\GameObject.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="src\Quaternion.cpp" />
-    <ClCompile Include="src\Scenegraph.cpp" />
-    <ClCompile Include="src\Transform.cpp" />
-    <ClCompile Include="src\UUID.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\GameObject.h" />
-    <ClInclude Include="include\Quaternion.h" />
-    <ClInclude Include="include\Scenegraph.h" />
-    <ClInclude Include="include\Transform.h" />
-    <ClInclude Include="src\UUID.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Project1\Project1.vcxproj">
+      <Project>{fb5ecc9e-35d1-4e04-9d17-29091fd255d3}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Quarternion\Quarternion.vcxproj">
+      <Project>{97ab81b5-c711-460f-91e2-84ccde172c2a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Quaternion\Quaternion.vcxproj">
+      <Project>{97ab81b5-c711-460f-91e2-84ccde172c2a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Scenegraph\Scenegraph.vcxproj">
+      <Project>{fb5ecc9e-35d1-4e04-9d17-29091fd255d3}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\SceneManagement\SceneManagement.vcxproj">
+      <Project>{6a654f8d-cec8-4e09-9dc0-ed8895bf8ba2}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

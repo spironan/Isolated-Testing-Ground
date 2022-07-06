@@ -2,17 +2,17 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <iomanip>
 
-Transform::Transform()
-: m_position{ 0.f, 0.f, 0.f }
-, m_eulerRotation { 0.f, 0.f, 0.f }
-, m_orientation{ quaternion::identity() }
-, m_scale{ 1.f, 1.f, 1.f }
-, m_dirty{ false }
-, m_hasChanged{ false }
-, m_globalTransform{ glm::mat4{ 1.f } }
-, m_localTransform{ glm::mat4{ 1.f } }
-{
-}
+//Transform::Transform()
+//    : m_position{ glm::vec3{ 0.f }}
+//    , m_eulerRotation { glm::vec3{ 0.f } }
+//    , m_orientation{ quaternion::identity() }
+//    , m_scale{ glm::vec3{ 1.f } }
+//    , m_dirty{ false }
+//    , m_hasChanged{ false }
+//    , m_globalTransform{ glm::mat4{ 1.f } }
+//    , m_localTransform{ glm::mat4{ 1.f } }
+//{
+//}
 
 /*-----------------------------------------------------------------------------*/
 /* Getter Functions                                                            */

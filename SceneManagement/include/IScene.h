@@ -46,6 +46,6 @@ public:
     bool IsLoaded() const { return m_isLoaded; }
 private:
     friend class SceneManager;
-    ID_type m_id;
+    ID_type m_id = 0;
     bool m_isLoaded = false;
 };

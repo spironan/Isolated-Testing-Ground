@@ -12,7 +12,7 @@ public:
     using mat4 = glm::mat4;
     using quat = quaternion;
 
-    Transform();
+    Transform() = default;
     
     Transform(Transform const& other) = default;
 
@@ -71,16 +71,16 @@ public:
 
 public:
 
-    mat4                m_globalTransform;
-    mat4                m_localTransform;
+    mat4 m_globalTransform  = mat4{ 1.f };
+    mat4 m_localTransform   = mat4{ 1.f };
 
-    vec3                m_position;
-    vec3                m_eulerRotation;
-    quaternion          m_orientation;      //used internally
-    vec3                m_scale;
+    vec3 m_position         = vec3{ 0.f };
+    vec3 m_eulerRotation    = vec3{ 0.f };
+    quat m_orientation      = quat{ quat::identity() };      //used internally
+    vec3 m_scale            = vec3{ 1.f };
 
-    bool                m_dirty;
-    bool                m_hasChanged;
+    bool m_dirty            = false;
+    bool m_hasChanged       = false;
 };
 
 std::ostream& operator<< (std::ostream& os, Transform::vec3 const& vector);

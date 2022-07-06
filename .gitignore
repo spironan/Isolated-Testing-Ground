@@ -12,3 +12,7 @@ Project1/x64
 Debug
 GeneralTest/x64
 JobSystem/x64
+SceneManagement/x64
+Scenegraph/x64
+Quaternion/x64
+SharedLibrary/x64

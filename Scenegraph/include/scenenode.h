@@ -7,7 +7,7 @@
 class scenenode
 {
 public:
-    using handle_type       = size_t;
+    using handle_type       = std::uint64_t;
     using value_type        = scenenode;
     using raw_pointer       = value_type*;
     using const_raw_pointer = value_type const*;
@@ -31,6 +31,7 @@ public:
     handle_type get_parent_handle() const;
     const_raw_pointer get_parent() const;
     std::vector<handle_type> get_all_child_handles() const;
+    std::vector<handle_type> get_direct_child_handles() const;
     void print_recursive() const;
 
 private:

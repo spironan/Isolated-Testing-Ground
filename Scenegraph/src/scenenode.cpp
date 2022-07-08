@@ -1,4 +1,4 @@
-#include "SceneNode.h"
+#include "scenenode.h"
 
 scenenode::scenenode(std::string_view name, handle_type handle)
     : m_debugName{ name }
@@ -131,6 +131,18 @@ std::vector<scenenode::handle_type> scenenode::get_all_child_handles() const
         {
             handles.emplace_back(grandchilds);
         }
+    }
+
+    return handles;
+}
+
+std::vector<scenenode::handle_type> scenenode::get_direct_child_handles() const
+{
+    std::vector<handle_type> handles;
+
+    for (auto& child : m_childs)
+    {
+        handles.emplace_back(child->m_handle);
     }
 
     return handles;

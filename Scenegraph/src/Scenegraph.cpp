@@ -1,146 +1,53 @@
-#include "Scenegraph.h"
+#include "SceneGraph.h"
 
-SceneNode::SceneNode(std::string const& name, handle_type handle)
-    : m_debugName{ name }
-    , m_handle{ handle }
-{}
-
-void SceneNode::printRecursive(size_t depth, bool printParent, bool printChilds) const
+void scenegraph::add_child(raw_pointer parent, raw_pointer child)
 {
-    std::cout << "(" << depth << ") - " << m_debugName << " [" << m_handle << "]";
+    parent->add_child(child);
+}
 
-    if (printParent)
+std::vector<scenegraph::handle_type> scenegraph::get_childs(const_raw_pointer target, bool includeItself)
+{
+    std::vector<handle_type> vec;
+    if (includeItself)
     {
-        std::cout << " / ParentID: {" << getParentHandle() << "}";
+        vec.emplace_back(target->get_handle());
     }
 
-    if (printChilds)
-    {
-        std::cout << " / ChildIDs: {";
-        for (auto& childId : getAllChildHandles())
-            std::cout << childId << ", ";
-        std::cout << "}";
-    }
+    std::vector<handle_type> childHandles = target->get_all_child_handles();
+    vec.insert(vec.end(), childHandles.begin(), childHandles.end());
 
-    std::cout << "\n";
-    for (auto& child : m_childs)
-    {
-        std::cout << "\t";
-        for (size_t i = 0; i < depth; ++i)
-            std::cout << "\t";
-
-        child->printRecursive(depth + 1);
-    }
+    return vec;
 }
 
-void SceneNode::remove(pointer node)
+
+scenegraph::scenegraph(std::string_view name)
+    : m_root{ std::make_shared<value_type>(name, ROOTID) }
 {
-    m_childs.erase(std::remove(m_childs.begin(), m_childs.end(), node), m_childs.end());
 }
 
-bool SceneNode::contains(pointer node) const
+scenegraph::shared_pointer scenegraph::create_new_child(std::string_view childName, handle_type unique_id)
 {
-    if (node == nullptr)
-        return false;
-
-    for (auto& child : m_childs)
-    {
-        if (child->contains(node) || child == node)
-            return true;
-    }
-
-    return false;
+    auto node = std::make_shared<scenenode>(childName, unique_id);
+    m_root->add_child(node.get());
+    return node;
 }
 
-void SceneNode::detach()
+void scenegraph::print() const
 {
-    if (m_parent != nullptr)
-    {
-        m_parent->remove(shared_from_this());
-        m_parent = nullptr;
-    }
+    m_root->print_recursive();
 }
 
-void SceneNode::addChild(pointer node)
+void scenegraph::add_child(raw_pointer child)
 {
-    // ensure target is eligible.
-    // ensure parent is not already target and target's child dont contain parent
-    if (node == shared_from_this()||
-        node->m_parent == shared_from_this() ||
-        node->contains(shared_from_this()))
-        return;
-
-    // if attached to another parent
-    if (node->m_parent != nullptr)
-    {
-        node->m_parent->remove(node);
-    }
-
-    // performing re-pointing
-    node->m_parent = shared_from_this();
-    m_childs.emplace_back(node);
+    m_root->add_child(child);
 }
 
-size_t SceneNode::getDirectChildCount() const
+scenegraph::shared_pointer scenegraph::get_root() const
 {
-    return m_childs.size();
+    return m_root;
 }
 
-size_t SceneNode::getTotalChildCount() const
+std::vector<scenegraph::handle_type> scenegraph::get_root_childs(bool includeItself) const
 {
-    size_t count = m_childs.size();
-
-    for (auto& child : m_childs)
-        count += child->getTotalChildCount();
-
-    return count;
-}
-
-SceneNode::handle_type SceneNode::getHandle() const
-{
-    return m_handle;
-}
-
-SceneNode::handle_type SceneNode::getParentHandle() const
-{
-    return m_parent ? m_parent->m_handle : NOTFOUND;
-}
-
-SceneNode::pointer SceneNode::getParent() const
-{
-    return m_parent;
-}
-
-std::vector<SceneNode::handle_type> SceneNode::getAllChildHandles() const
-{
-    std::vector<handle_type> handles;
-
-    for (auto& child : m_childs)
-    {
-        handles.emplace_back(child->m_handle);
-
-        for (auto& grandchilds : child->getAllChildHandles())
-        {
-            handles.emplace_back(grandchilds);
-        }
-    }
-
-    return handles;
-}
-
-void SceneNode::printRecursive() const
-{
-    printRecursive(0);
-}
-
-void PrintNode(SceneNode::const_pointer node)
-{
-    // "Computation" with pointer-to-const
-    SceneNode::const_pointer root_ptr = node;
-    root_ptr->printRecursive();
-    size_t directChilds = root_ptr->getDirectChildCount();
-    size_t totalChilds = root_ptr->getTotalChildCount();
-
-    std::cout << "direct childs : " << directChilds << std::endl;
-    std::cout << "total childs : " << totalChilds << std::endl;
+    return get_childs(m_root.get(), includeItself);
 }

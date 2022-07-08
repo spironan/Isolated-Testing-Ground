@@ -149,11 +149,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="src\Scenegraph.cpp" />
+    <ClCompile Include="src\scenegraph.cpp" />
+    <ClCompile Include="src\scenenode.cpp" />
     <ClCompile Include="src\UUID.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\Scenegraph.h" />
+    <ClInclude Include="include\scenegraph.h" />
+    <ClInclude Include="include\scenenode.h" />
     <ClInclude Include="src\UUID.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

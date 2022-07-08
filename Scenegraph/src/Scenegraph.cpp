@@ -33,19 +33,19 @@ void SceneNode::printRecursive(size_t depth, bool printParent, bool printChilds)
     }
 }
 
-void SceneNode::remove(SceneNode* node)
+void SceneNode::remove(pointer node)
 {
     m_childs.erase(std::remove(m_childs.begin(), m_childs.end(), node), m_childs.end());
 }
 
-bool SceneNode::contains(SceneNode* node) const
+bool SceneNode::contains(pointer node) const
 {
     if (node == nullptr)
         return false;
 
-    for (auto* child : m_childs)
+    for (auto& child : m_childs)
     {
-        if (child->contains(node) || *child == *node)
+        if (child->contains(node) || child == node)
             return true;
     }
 
@@ -56,18 +56,18 @@ void SceneNode::detach()
 {
     if (m_parent != nullptr)
     {
-        m_parent->remove(this);
+        m_parent->remove(shared_from_this());
         m_parent = nullptr;
     }
 }
 
-void SceneNode::addChild(SceneNode* node)
+void SceneNode::addChild(pointer node)
 {
-    //ensure target is eligible.
+    // ensure target is eligible.
     // ensure parent is not already target and target's child dont contain parent
-    if (node == this ||
-        node->m_parent == this ||
-        node->contains(this))
+    if (node == shared_from_this()||
+        node->m_parent == shared_from_this() ||
+        node->contains(shared_from_this()))
         return;
 
     // if attached to another parent
@@ -77,7 +77,7 @@ void SceneNode::addChild(SceneNode* node)
     }
 
     // performing re-pointing
-    node->m_parent = this;
+    node->m_parent = shared_from_this();
     m_childs.emplace_back(node);
 }
 
@@ -106,6 +106,11 @@ SceneNode::handle_type SceneNode::getParentHandle() const
     return m_parent ? m_parent->m_handle : NOTFOUND;
 }
 
+SceneNode::pointer SceneNode::getParent() const
+{
+    return m_parent;
+}
+
 std::vector<SceneNode::handle_type> SceneNode::getAllChildHandles() const
 {
     std::vector<handle_type> handles;
@@ -128,10 +133,10 @@ void SceneNode::printRecursive() const
     printRecursive(0);
 }
 
-void PrintNode(SceneNode const* node)
+void PrintNode(SceneNode::const_pointer node)
 {
     // "Computation" with pointer-to-const
-    const SceneNode* root_ptr = node;
+    SceneNode::const_pointer root_ptr = node;
     root_ptr->printRecursive();
     size_t directChilds = root_ptr->getDirectChildCount();
     size_t totalChilds = root_ptr->getTotalChildCount();

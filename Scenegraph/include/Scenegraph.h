@@ -7,21 +7,25 @@
 #include <unordered_map>
 #include <cassert>
 
-class SceneNode
+struct SceneNode : std::enable_shared_from_this<SceneNode>
 {
 public:
-    using handle_type = size_t;
+    using handle_type   = size_t;
+    using value_type    = SceneNode;
+    using pointer       = std::shared_ptr<value_type>;
+    using const_pointer = pointer const;
+
     static constexpr handle_type NOTFOUND = static_cast<handle_type>(-1);
 
 private:
     // contains handle to actual data in scene-graph hierarchy
-    SceneNode* m_parent = nullptr;
-    std::vector<SceneNode*> m_childs = {};
+    pointer m_parent = nullptr;
+    std::vector<pointer> m_childs = {};
     std::string m_debugName = "default name";
     handle_type m_handle = NOTFOUND;
 
     void printRecursive(size_t depth, bool printParent = true, bool printChilds = true) const;
-    void remove(SceneNode* node);
+    void remove(pointer node);
 
 public:
     SceneNode(std::string const& name, handle_type handle);
@@ -36,11 +40,11 @@ public:
 
     auto operator<=>(SceneNode const&) const = default;
 
-    bool contains(SceneNode* node) const;
+    bool contains(pointer node) const;
 
     void detach();
 
-    void addChild(SceneNode* node);
+    void addChild(pointer node);
 
     size_t getDirectChildCount() const;
 
@@ -50,12 +54,14 @@ public:
 
     handle_type getParentHandle() const;
 
+    pointer getParent() const;
+
     std::vector<handle_type> getAllChildHandles() const;
 
     void printRecursive() const;
 };
 
-void PrintNode(SceneNode const* node);
+void PrintNode(SceneNode::const_pointer node);
 
 // System will have one scenegraph object at any point in time.
 // Data must be default constructible
@@ -64,45 +70,59 @@ void PrintNode(SceneNode const* node);
 struct Scenegraph
 {
 public:
-    using Key = oo::UUID;
+    using handle_type   = SceneNode::handle_type;
+    using value_type    = SceneNode::value_type;
+    using pointer       = SceneNode::pointer;
+    using const_pointer = SceneNode::const_pointer;
+
+    using key = oo::UUID;
+
+    static constexpr handle_type ROOTID = std::numeric_limits<handle_type>::min();
 
 private:
-    SceneNode m_root;
+    //SceneNode m_root;
+    pointer m_root = nullptr;
     //std::unordered_map<Key, Data> m_data;
 
 public:
-    Scenegraph(std::string const& name) : m_root{ name, 0 } { /*m_data.emplace(m_root.getHandle(), Data{});*/ }
+    Scenegraph() = default;
+
+    Scenegraph(std::string const& name) 
+        : m_root{ std::make_shared<value_type>(name, ROOTID) } 
+    { 
+        /*m_data.emplace(m_root->getHandle(), Data{});*/ 
+    }
 
     void Print() const
     {
-        m_root.printRecursive();
+        m_root->printRecursive();
     }
 
-    void AddChildToRoot(SceneNode* child/*, Data const& data*/)
+    void AddChildToRoot(pointer child/*, Data const& data*/)
     {
-        m_root.addChild(child);
+        m_root->addChild(child);
         /*m_data[child->getHandle()] = data;*/
     }
 
-    void AddChild(SceneNode* parent, SceneNode* child)
+    void AddChild(pointer parent, pointer child)
     {
         parent->addChild(child);
     }
 
-    SceneNode GetRoot() const
+    pointer GetRoot() const
     {
         return m_root;
     }
 
-    std::vector<SceneNode::handle_type> GetChilds(SceneNode const* target, bool includeItself = false) const
+    std::vector<handle_type> GetChilds(const_pointer target, bool includeItself = false) const
     {
-        std::vector<SceneNode::handle_type> vec;
+        std::vector<handle_type> vec;
         if (includeItself)
         {
             vec.emplace_back(target->getHandle());
         }
 
-        std::vector<SceneNode::handle_type> childHandles = target->getAllChildHandles();
+        std::vector<handle_type> childHandles = target->getAllChildHandles();
         vec.insert(vec.end(), childHandles.begin(), childHandles.end());
 
         return vec;
@@ -116,9 +136,9 @@ public:
         return result;*/
     }
 
-    std::vector<SceneNode::handle_type> GetRootChilds(bool includeItself = false) const
+    std::vector<handle_type> GetRootChilds(bool includeItself = false) const
     {
-        return GetChilds(&m_root, includeItself);
+        return GetChilds(m_root, includeItself);
     }
 
     /*SceneNode::handle_type GetParent(SceneNode const* target) const

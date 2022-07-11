@@ -134,7 +134,7 @@ void SceneManager::Update()
             }
             // implied (!m_loading && m_activeScene)
             // B) Currently not loading and looking to change scene.
-            else if (m_activeScene)
+            else if (m_nextScene || m_activeScene)
             {
                 UnloadScene(m_activeScene);
 

@@ -29,7 +29,7 @@ public:
     using container_type = std::map<key_type, std::shared_ptr<IScene>>;
     
     template<typename derived>
-    using result = std::tuple<bool, key_type, std::shared_ptr<derived>>;
+    using result = std::tuple<bool, key_type, std::weak_ptr<derived>>;
 
     static constexpr key_type NO_SCENE = std::numeric_limits<key_type>::max();
     static constexpr key_type REMOVED  = std::numeric_limits<key_type>::max();
@@ -55,7 +55,7 @@ public:
         key_type key = StringHash::GenerateFNV1aHash(name);
 
         if (m_scenes.contains(key))
-            return { false, NO_SCENE , nullptr };
+            return { false, NO_SCENE , std::weak_ptr<Derived>() };
 
         std::shared_ptr<Derived> dervied_scene = std::make_shared<Derived>(args...);
         std::shared_ptr<IScene> new_scene = dervied_scene;
@@ -68,8 +68,8 @@ public:
 
     bool HasActiveScene() const;
     bool HasLoadingScene() const;
-    std::shared_ptr<IScene> GetActiveScene() const;
-    std::shared_ptr<IScene> GetScene(key_type id) const;
+    std::weak_ptr<IScene> GetActiveScene() const;
+    std::weak_ptr<IScene> GetScene(key_type id) const;
     bool HasScene(key_type id) const;
     bool IsActiveScene(key_type id) const;
 
@@ -77,7 +77,7 @@ public:
     bool SetActiveScene(key_type id);
     bool ChangeScene(key_type id);
     bool ChangeScene(std::string_view name);
-    bool ChangeScene(std::shared_ptr<IScene> scene);
+    bool ChangeScene(std::weak_ptr<IScene> scene);
     bool ReloadActiveScene();
 
     void Init();

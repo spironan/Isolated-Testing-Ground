@@ -25,7 +25,12 @@ scenegraph::scenegraph(std::string_view name)
 {
 }
 
-scenegraph::shared_pointer scenegraph::create_new_child(std::string_view childName, handle_type unique_id)
+scenegraph::~scenegraph()
+{
+
+}
+
+scenegraph::weak_pointer scenegraph::create_new_child(std::string_view childName, handle_type unique_id)
 {
     auto node = std::make_shared<scenenode>(childName, unique_id);
     m_root->add_child(node.get());
@@ -42,7 +47,7 @@ void scenegraph::add_child(raw_pointer child)
     m_root->add_child(child);
 }
 
-scenegraph::shared_pointer scenegraph::get_root() const
+scenegraph::weak_pointer scenegraph::get_root() const
 {
     return m_root;
 }

@@ -13,6 +13,7 @@ public:
     using raw_pointer       = scenenode::raw_pointer;
     using shared_pointer    = scenenode::shared_pointer;
     using const_raw_pointer = scenenode::const_raw_pointer;
+    using weak_pointer      = scenenode::weak_pointer;
 
     static constexpr handle_type ROOTID = std::numeric_limits<handle_type>::min();
 
@@ -29,12 +30,13 @@ public:
 
     scenegraph() = default;
     scenegraph(std::string_view name);
+    ~scenegraph();
 
     void print() const;
-    shared_pointer get_root() const;
+    weak_pointer get_root() const;
     std::vector<handle_type> get_root_childs(bool includeItself = false) const;
 
-    shared_pointer create_new_child(std::string_view childName, handle_type unique_id);
+    weak_pointer create_new_child(std::string_view childName, handle_type unique_id);
     void add_child(raw_pointer child);
 
     /*SceneNode::handle_type GetParent(SceneNode const* target) const

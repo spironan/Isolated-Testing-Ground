@@ -19,15 +19,15 @@ bool SceneManager::HasLoadingScene() const
     return m_loadingScene != nullptr;
 }
 
-std::shared_ptr<IScene> SceneManager::GetActiveScene() const
+std::weak_ptr<IScene> SceneManager::GetActiveScene() const
 {
     return m_activeScene;
 }
 
-std::shared_ptr<IScene> SceneManager::GetScene(key_type id) const
+std::weak_ptr<IScene> SceneManager::GetScene(key_type id) const
 {
     if (!HasScene(id))
-        return nullptr;
+        return std::weak_ptr<IScene>();
 
     return m_scenes.at(id);
 }
@@ -78,9 +78,9 @@ bool SceneManager::ChangeScene(std::string_view name)
     return ChangeScene(key);
 }
 
-bool SceneManager::ChangeScene(std::shared_ptr<IScene> scene)
+bool SceneManager::ChangeScene(std::weak_ptr<IScene> scene)
 {
-    return scene != nullptr && SetActiveScene(scene->GetID());
+    return scene.lock() != nullptr && SetActiveScene(scene.lock()->GetID());
     //m_nextScene = scene;
 }
 
@@ -183,11 +183,18 @@ void SceneManager::Update()
 
 void SceneManager::Terminate()
 {
-    UnloadScene(m_activeScene);
+    /*UnloadScene(m_activeScene);
     UnloadScene(m_loadingScene);
-    UnloadScene(m_nextScene);
+    UnloadScene(m_nextScene);*/
 
+    for (auto& [key, scene] : m_scenes)
+    {
+        UnloadScene(scene);
+        scene.reset();
+    }
+    
     m_activeScene = m_nextScene = m_loadingScene = nullptr;
+    
     m_scenes.clear();
 }
 

@@ -12,6 +12,7 @@ public:
     using raw_pointer       = value_type*;
     using const_raw_pointer = value_type const*;
     using shared_pointer    = std::shared_ptr<value_type>;
+    using weak_pointer      = std::weak_ptr<value_type>;
 
     static constexpr handle_type NOTFOUND = static_cast<handle_type>(-1);
 

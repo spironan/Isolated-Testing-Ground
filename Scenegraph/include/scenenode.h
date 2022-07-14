@@ -17,19 +17,19 @@ public:
     static constexpr handle_type NOTFOUND = static_cast<handle_type>(-1);
 
 public:
-    scenenode() = default;
+    scenenode() = delete;
     scenenode(std::string_view name, handle_type handle);
     scenenode(scenenode const& other) = default;
-    ~scenenode();
+    ~scenenode() = default;
 
     auto operator<=>(scenenode const&) const = default;
 
     void detach();
     void add_child(shared_pointer node);
 
-    bool contains(raw_pointer node) const;
-    size_t get_direct_child_count() const;
-    size_t get_total_child_count() const;
+    bool contains(shared_pointer node) const;
+    std::size_t get_direct_child_count() const;
+    std::size_t get_total_child_count() const;
     handle_type get_handle() const;
     handle_type get_parent_handle() const;
     weak_pointer get_parent() const;
@@ -51,6 +51,5 @@ private:
 };
 
 void PrintSceneNode(scenenode::const_raw_pointer node);
-
 
 static constexpr std::size_t scenenode_size = sizeof(scenenode); //112 + 16

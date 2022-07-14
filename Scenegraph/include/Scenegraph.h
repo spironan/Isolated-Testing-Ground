@@ -23,20 +23,20 @@ private:
 public:
     //static functions
 
-    static void add_child(weak_pointer parent, weak_pointer child);
-    static std::vector<handle_type> get_childs(const_raw_pointer target, bool includeItself = false);
+    static void add_child(shared_pointer parent, shared_pointer child);
+    static std::vector<handle_type> get_childs(shared_pointer target, bool includeItself = false);
 
 public:
 
-    scenegraph() = default;
+    scenegraph() = delete;
     scenegraph(std::string_view name);
-    ~scenegraph();
+    ~scenegraph() = default;
 
     void print() const;
-    weak_pointer get_root() const;
+    shared_pointer get_root() const;
     std::vector<handle_type> get_root_childs(bool includeItself = false) const;
 
-    weak_pointer create_new_child(std::string_view childName, handle_type unique_id);
+    shared_pointer create_new_child(std::string_view childName, handle_type unique_id);
     void add_child(shared_pointer child);
 
     /*SceneNode::handle_type GetParent(SceneNode const* target) const
@@ -58,4 +58,4 @@ public:
     }*/
 };
 
-static constexpr std::size_t sizeof_scenegraph = sizeof(scenegraph);// 16 + 112 = 128
+static constexpr std::size_t sizeof_scenegraph = sizeof(scenegraph); // 16 + 112 = 128

@@ -55,7 +55,7 @@ public:
         key_type key = StringHash::GenerateFNV1aHash(name);
 
         if (m_scenes.contains(key))
-            return { false, NO_SCENE , std::weak_ptr<Derived>() };
+            return { false, NO_SCENE, std::weak_ptr<Derived>() };
 
         std::shared_ptr<Derived> dervied_scene = std::make_shared<Derived>(args...);
         std::shared_ptr<IScene> new_scene = dervied_scene;

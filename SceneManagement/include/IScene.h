@@ -40,7 +40,7 @@ public:
     virtual void UnloadScene() = 0;
     virtual void ReloadScene() = 0;
 
-    virtual LoadStatus GetProgress() = 0;
+    virtual LoadStatus GetProgress() const = 0;
 
     ID_type GetID() const { return m_id; }
     bool IsLoaded() const { return m_isLoaded; }

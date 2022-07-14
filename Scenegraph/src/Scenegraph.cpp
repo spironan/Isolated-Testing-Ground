@@ -1,8 +1,8 @@
 #include "SceneGraph.h"
 
-void scenegraph::add_child(raw_pointer parent, raw_pointer child)
+void scenegraph::add_child(weak_pointer parent, weak_pointer child)
 {
-    parent->add_child(child);
+    parent.lock()->add_child(child.lock());
 }
 
 std::vector<scenegraph::handle_type> scenegraph::get_childs(const_raw_pointer target, bool includeItself)
@@ -27,13 +27,13 @@ scenegraph::scenegraph(std::string_view name)
 
 scenegraph::~scenegraph()
 {
-
+    auto use_count = m_root.use_count();
 }
 
 scenegraph::weak_pointer scenegraph::create_new_child(std::string_view childName, handle_type unique_id)
 {
-    auto node = std::make_shared<scenenode>(childName, unique_id);
-    m_root->add_child(node.get());
+    scenenode::shared_pointer node = std::make_shared<scenenode>(childName, unique_id);
+    m_root->add_child(node);
     return node;
 }
 
@@ -42,7 +42,7 @@ void scenegraph::print() const
     m_root->print_recursive();
 }
 
-void scenegraph::add_child(raw_pointer child)
+void scenegraph::add_child(shared_pointer child)
 {
     m_root->add_child(child);
 }

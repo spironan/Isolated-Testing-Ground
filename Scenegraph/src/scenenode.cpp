@@ -3,14 +3,26 @@
 scenenode::scenenode(std::string_view name, handle_type handle)
     : m_debugName{ name }
     , m_handle{ handle }
+    , m_parent{}
+    , m_childs{}
 {}
 
-scenenode::scenenode(scenenode const& other)
-    : m_parent{ other.m_parent }
-    , m_childs{ other.m_childs }
-    , m_debugName{ other.m_debugName }
-    , m_handle{ other.m_handle }
+//scenenode::scenenode(scenenode const& other)
+//    : m_parent{ other.m_parent }
+//    , m_childs{ other.m_childs }
+//    , m_debugName{ other.m_debugName }
+//    , m_handle{ other.m_handle }
+//{
+//}
+
+scenenode::~scenenode()
 {
+    for (auto& child : m_childs)
+    {
+        auto use_count = child.use_count();
+        (void*)use_count;
+    }
+
 }
 
 void scenenode::print_recursive(size_t depth, bool printParent, bool printChilds) const
@@ -41,7 +53,7 @@ void scenenode::print_recursive(size_t depth, bool printParent, bool printChilds
     }
 }
 
-void scenenode::remove(raw_pointer node)
+void scenenode::remove(shared_pointer node)
 {
     m_childs.erase(std::remove(m_childs.begin(), m_childs.end(), node), m_childs.end());
 }
@@ -53,7 +65,7 @@ bool scenenode::contains(raw_pointer node) const
 
     for (auto& child : m_childs)
     {
-        if (child->contains(node) || child == node)
+        if (child->contains(node) || child.get() == node)
             return true;
     }
 
@@ -62,30 +74,30 @@ bool scenenode::contains(raw_pointer node) const
 
 void scenenode::detach()
 {
-    if (m_parent != nullptr)
+    if (m_parent.lock() != nullptr)
     {
-        m_parent->remove(this);
-        m_parent = nullptr;
+        m_parent.lock()->remove(shared_from_this());
+        m_parent.reset();
     }
 }
 
-void scenenode::add_child(raw_pointer node)
+void scenenode::add_child(shared_pointer node)
 {
     // ensure target is eligible.
     // ensure parent is not already target and target's child dont contain parent
-    if (node == this ||
-        node->m_parent == this ||
+    if (node == shared_from_this() ||
+        node->m_parent.lock() == shared_from_this() ||
         node->contains(this))
         return;
 
     // if attached to another parent
-    if (node->m_parent != nullptr)
+    if (node->m_parent.lock() != nullptr)
     {
-        node->m_parent->remove(node);
+        node->m_parent.lock()->remove(node);
     }
 
     // performing re-pointing
-    node->m_parent = this;
+    node->m_parent = shared_from_this();
     m_childs.emplace_back(node);
 }
 
@@ -111,10 +123,10 @@ scenenode::handle_type scenenode::get_handle() const
 
 scenenode::handle_type scenenode::get_parent_handle() const
 {
-    return m_parent ? m_parent->m_handle : NOTFOUND;
+    return m_parent.expired() ? NOTFOUND : m_parent.lock()->m_handle;
 }
 
-scenenode::const_raw_pointer scenenode::get_parent() const
+scenenode::weak_pointer scenenode::get_parent() const
 {
     return m_parent;
 }

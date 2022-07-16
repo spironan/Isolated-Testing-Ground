@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include <cassert>
+#include <stack>
 #include "scenenode.h"
 
 class scenegraph
@@ -22,22 +23,34 @@ private:
     
 public:
     //static functions
-
     static void add_child(shared_pointer parent, shared_pointer child);
     static std::vector<handle_type> get_childs(shared_pointer target, bool includeItself = false);
+    static std::vector<value_type> hierarchy_traversal_nodes(scenegraph const& graph);
+    static std::vector<handle_type> hierarchy_traversal_handles(scenegraph const& graph);
+    static std::pair<std::vector<value_type>, std::vector<handle_type>> hierarchy_traversal_both(scenegraph const& graph);
 
 public:
-
     scenegraph() = delete;
     scenegraph(std::string_view name);
+    scenegraph(scenegraph const& other) = default;
+    scenegraph(scenegraph && other) = default;
+    scenegraph& operator=(scenegraph const& other) = default;
+    scenegraph& operator=(scenegraph && other) = default;
     ~scenegraph() = default;
 
+public:
     void print() const;
     shared_pointer get_root() const;
     std::vector<handle_type> get_root_childs(bool includeItself = false) const;
 
     shared_pointer create_new_child(std::string_view childName, handle_type unique_id);
     void add_child(shared_pointer child);
+    
+public:
+    // Traversal methods
+    std::vector<value_type> hierarchy_traversal_nodes() const;
+    std::vector<handle_type> hierarchy_traversal_handles() const;
+    std::pair<std::vector<value_type>, std::vector<handle_type>> hierarchy_traversal_both() const;
 
     /*SceneNode::handle_type GetParent(SceneNode const* target) const
     {
@@ -59,3 +72,5 @@ public:
 };
 
 static constexpr std::size_t sizeof_scenegraph = sizeof(scenegraph); // 16 + 112 = 128
+
+

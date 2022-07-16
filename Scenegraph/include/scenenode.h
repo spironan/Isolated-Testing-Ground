@@ -37,6 +37,13 @@ public:
     std::vector<handle_type> get_direct_child_handles() const;
     void print_recursive() const;
 
+    std::vector<shared_pointer> get_direct_child() const { return m_childs; }
+    
+    std::vector<shared_pointer>::iterator           begin()  { return m_childs.begin(); }
+    std::vector<shared_pointer>::iterator           end()    { return m_childs.end(); }
+    std::vector<shared_pointer>::reverse_iterator   rbegin() { return m_childs.rbegin(); }
+    std::vector<shared_pointer>::reverse_iterator   rend()   { return m_childs.rend(); }
+
 private:
     // contains handle to actual data in scene-graph hierarchy
     weak_pointer m_parent = {};

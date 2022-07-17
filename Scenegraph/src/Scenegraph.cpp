@@ -1,7 +1,7 @@
 #include "..\include\Scenegraph.h"
 #include "..\include\Scenegraph.h"
 #include "..\include\Scenegraph.h"
-#include "SceneGraph.h"
+#include "SceneGraph/include/SceneGraph.h"
 
 void scenegraph::add_child(shared_pointer parent, shared_pointer child)
 {

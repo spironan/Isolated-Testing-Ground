@@ -1,4 +1,4 @@
-#include "scenenode.h"
+#include "scenegraph/include/scenenode.h"
 
 scenenode::scenenode(std::string_view name, handle_type handle)
     : m_debugName{ name }

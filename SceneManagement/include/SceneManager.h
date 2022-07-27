@@ -64,7 +64,12 @@ public:
 
         return { true, new_scene->GetID(), dervied_scene };
     }
-    
+
+    template <typename Derived>
+    std::shared_ptr<Derived> GetActiveScene() const
+    {
+        return std::static_pointer_cast<Derived>(GetActiveScene().lock());
+    }
 
     bool HasActiveScene() const;
     bool HasLoadingScene() const;

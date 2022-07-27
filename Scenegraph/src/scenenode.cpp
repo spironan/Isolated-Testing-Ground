@@ -43,7 +43,11 @@ void scenenode::remove(shared_pointer node)
 scenenode::shared_pointer scenenode::get_next_child(shared_pointer current)
 {
     auto position = std::find(m_childs.begin(), m_childs.end(), current);
-    return *(position++);
+    
+    if (position != m_childs.end())
+        position++;
+
+    return *position;
 }
 
 void scenenode::rearrange_childs(shared_pointer src_child, shared_pointer target_child)
@@ -180,7 +184,17 @@ bool scenenode::move_to(shared_pointer sibling_node)
 
 bool scenenode::move_to_after(shared_pointer sibling_node)
 {
-    return move_to(get_next_child(sibling_node));
+    // make sure they share the same parent
+    auto parent = get_parent().lock();
+    bool verified_sibling = parent->contains(sibling_node);
+
+    if (verified_sibling)
+    {
+        parent->rearrange_childs(shared_from_this(), parent->get_next_child(sibling_node));
+        return true;
+    }
+
+    return false;
 }
 
 void PrintSceneNode(scenenode::const_raw_pointer node)

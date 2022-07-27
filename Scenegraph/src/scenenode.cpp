@@ -40,24 +40,27 @@ void scenenode::remove(shared_pointer node)
     m_childs.erase(std::remove(m_childs.begin(), m_childs.end(), node), m_childs.end());
 }
 
-scenenode::shared_pointer scenenode::get_next_child(shared_pointer current)
+std::vector<scenenode::shared_pointer>::iterator scenenode::get_child_iter(shared_pointer current)
 {
-    auto position = std::find(m_childs.begin(), m_childs.end(), current);
+    return std::find(m_childs.begin(), m_childs.end(), current);
+}
+
+std::vector<scenenode::shared_pointer>::iterator scenenode::get_next_child_iter(shared_pointer current)
+{
+    std::vector<scenenode::shared_pointer>::iterator position = std::find(m_childs.begin(), m_childs.end(), current);
     
     if (position != m_childs.end())
         position++;
 
-    return *position;
+    return position;
 }
 
-void scenenode::rearrange_childs(shared_pointer src_child, shared_pointer target_child)
+void scenenode::rearrange_childs(shared_pointer src_child, std::vector<scenenode::shared_pointer>::iterator target_position)
 {
     // remove the child
     remove(src_child);
-    // find new position to insert at
-    auto position = std::find(m_childs.begin(), m_childs.end(), target_child);
     // insert at that location
-    m_childs.emplace(position, src_child);
+    m_childs.emplace(target_position, src_child);
 }
 
 bool scenenode::contains(shared_pointer node) const
@@ -175,7 +178,7 @@ bool scenenode::move_to(shared_pointer sibling_node)
     
     if (verified_sibling)
     {
-        parent->rearrange_childs(shared_from_this(), sibling_node);
+        parent->rearrange_childs(shared_from_this(), parent->get_child_iter(sibling_node));
         return true;
     }
 
@@ -190,7 +193,7 @@ bool scenenode::move_to_after(shared_pointer sibling_node)
 
     if (verified_sibling)
     {
-        parent->rearrange_childs(shared_from_this(), parent->get_next_child(sibling_node));
+        parent->rearrange_childs(shared_from_this(), parent->get_next_child_iter(sibling_node));
         return true;
     }
 

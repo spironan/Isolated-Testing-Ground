@@ -58,8 +58,9 @@ private:
     void print_recursive(size_t depth, bool printParent = true, bool printChilds = true) const;
     void remove(shared_pointer node);
 
-    shared_pointer get_next_child(shared_pointer current);
-    void rearrange_childs(shared_pointer src_child, shared_pointer target_child);
+    std::vector<scenenode::shared_pointer>::iterator get_child_iter(shared_pointer current);
+    std::vector<scenenode::shared_pointer>::iterator get_next_child_iter(shared_pointer current);
+    void rearrange_childs(shared_pointer src_child, std::vector<scenenode::shared_pointer>::iterator target_child);
 };
 
 void PrintSceneNode(scenenode::const_raw_pointer node);

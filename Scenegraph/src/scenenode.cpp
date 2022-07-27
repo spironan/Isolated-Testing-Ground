@@ -40,6 +40,12 @@ void scenenode::remove(shared_pointer node)
     m_childs.erase(std::remove(m_childs.begin(), m_childs.end(), node), m_childs.end());
 }
 
+scenenode::shared_pointer scenenode::get_next_child(shared_pointer current)
+{
+    auto position = std::find(m_childs.begin(), m_childs.end(), current);
+    return *(position++);
+}
+
 void scenenode::rearrange_childs(shared_pointer src_child, shared_pointer target_child)
 {
     // remove the child
@@ -170,6 +176,11 @@ bool scenenode::move_to(shared_pointer sibling_node)
     }
 
     return false;
+}
+
+bool scenenode::move_to_after(shared_pointer sibling_node)
+{
+    return move_to(get_next_child(sibling_node));
 }
 
 void PrintSceneNode(scenenode::const_raw_pointer node)

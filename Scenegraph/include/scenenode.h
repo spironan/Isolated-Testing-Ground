@@ -45,6 +45,7 @@ public:
     std::vector<shared_pointer>::reverse_iterator   rend()   { return m_childs.rend(); }
 
     bool move_to(shared_pointer sibling_node);
+    bool move_to_after(shared_pointer sibling_node);
 
 private:
     // contains handle to actual data in scene-graph hierarchy
@@ -57,6 +58,7 @@ private:
     void print_recursive(size_t depth, bool printParent = true, bool printChilds = true) const;
     void remove(shared_pointer node);
 
+    shared_pointer get_next_child(shared_pointer current);
     void rearrange_childs(shared_pointer src_child, shared_pointer target_child);
 };
 

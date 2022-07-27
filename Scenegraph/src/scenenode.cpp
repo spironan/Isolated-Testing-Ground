@@ -59,8 +59,15 @@ void scenenode::rearrange_childs(shared_pointer src_child, std::vector<scenenode
 {
     // remove the child
     remove(src_child);
-    // insert at that location
-    m_childs.emplace(target_position, src_child);
+    if (target_position != m_childs.end())
+    {
+        // insert at that location
+        m_childs.emplace(target_position, src_child);
+    }
+    else
+    {
+        m_childs.emplace_back(src_child);
+    }
 }
 
 bool scenenode::contains(shared_pointer node) const

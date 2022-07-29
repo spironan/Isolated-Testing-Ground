@@ -40,27 +40,17 @@ void scenenode::remove(shared_pointer node)
     m_childs.erase(std::remove(m_childs.begin(), m_childs.end(), node), m_childs.end());
 }
 
-std::vector<scenenode::shared_pointer>::iterator scenenode::get_child_iter(shared_pointer current)
-{
-    return std::find(m_childs.begin(), m_childs.end(), current);
-}
-
-std::vector<scenenode::shared_pointer>::iterator scenenode::get_next_child_iter(shared_pointer current)
-{
-    std::vector<scenenode::shared_pointer>::iterator position = std::find(m_childs.begin(), m_childs.end(), current);
-    
-    if (position != m_childs.end())
-        position++;
-
-    return position;
-}
-
-void scenenode::rearrange_childs(shared_pointer src_child, std::vector<scenenode::shared_pointer>::iterator target_position)
+void scenenode::rearrange_childs(shared_pointer src_child, shared_pointer target_child, bool next)
 {
     // remove the child
     remove(src_child);
+    
+    auto target_position = std::find(m_childs.begin(), m_childs.end(), target_child);
     if (target_position != m_childs.end())
     {
+        if (next)
+            target_position++;
+
         // insert at that location
         m_childs.emplace(target_position, src_child);
     }
@@ -177,15 +167,19 @@ void scenenode::print_recursive() const
     print_recursive(0);
 }
 
-bool scenenode::move_to(shared_pointer sibling_node)
+bool scenenode::move_to(shared_pointer sibling_node, bool next)
 {
+    //make sure they are not the same node
+    if (sibling_node == shared_from_this())
+        return false;
+
     // make sure they share the same parent
     auto parent = get_parent().lock();
     bool verified_sibling = parent->contains(sibling_node);
     
     if (verified_sibling)
     {
-        parent->rearrange_childs(shared_from_this(), parent->get_child_iter(sibling_node));
+        parent->rearrange_childs(shared_from_this(), sibling_node, next);
         return true;
     }
 
@@ -194,17 +188,7 @@ bool scenenode::move_to(shared_pointer sibling_node)
 
 bool scenenode::move_to_after(shared_pointer sibling_node)
 {
-    // make sure they share the same parent
-    auto parent = get_parent().lock();
-    bool verified_sibling = parent->contains(sibling_node);
-
-    if (verified_sibling)
-    {
-        parent->rearrange_childs(shared_from_this(), parent->get_next_child_iter(sibling_node));
-        return true;
-    }
-
-    return false;
+    return move_to(sibling_node, true);
 }
 
 void PrintSceneNode(scenenode::const_raw_pointer node)

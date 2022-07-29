@@ -44,7 +44,7 @@ public:
     std::vector<shared_pointer>::reverse_iterator   rbegin() { return m_childs.rbegin(); }
     std::vector<shared_pointer>::reverse_iterator   rend()   { return m_childs.rend(); }
 
-    bool move_to(shared_pointer sibling_node);
+    bool move_to(shared_pointer sibling_node, bool next = false);
     bool move_to_after(shared_pointer sibling_node);
 
 private:
@@ -58,9 +58,7 @@ private:
     void print_recursive(size_t depth, bool printParent = true, bool printChilds = true) const;
     void remove(shared_pointer node);
 
-    std::vector<scenenode::shared_pointer>::iterator get_child_iter(shared_pointer current);
-    std::vector<scenenode::shared_pointer>::iterator get_next_child_iter(shared_pointer current);
-    void rearrange_childs(shared_pointer src_child, std::vector<scenenode::shared_pointer>::iterator target_child);
+    void rearrange_childs(shared_pointer src_child, shared_pointer target_child, bool next = false);
 };
 
 void PrintSceneNode(scenenode::const_raw_pointer node);

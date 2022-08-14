@@ -81,6 +81,7 @@ std::vector<scenegraph::value_type> scenegraph::hierarchy_traversal_nodes(sceneg
     s.push(curr);
     while (!s.empty())
     {
+        curr = s.top();
         s.pop();
         for (auto iter = curr->rbegin(); iter != curr->rend(); ++iter)
         {
@@ -89,7 +90,6 @@ std::vector<scenegraph::value_type> scenegraph::hierarchy_traversal_nodes(sceneg
             nodes.push_back(*child);
             //handles.emplace_back(child->get_handle());
         }
-        curr = s.top();
     }
 
     return nodes;
@@ -105,6 +105,7 @@ std::vector<scenegraph::handle_type> scenegraph::hierarchy_traversal_handles(sce
     s.push(curr);
     while (!s.empty())
     {
+        curr = s.top();
         s.pop();
         for (auto iter = curr->rbegin(); iter != curr->rend(); ++iter)
         {
@@ -113,7 +114,6 @@ std::vector<scenegraph::handle_type> scenegraph::hierarchy_traversal_handles(sce
             //nodes.push_back(*child);
             handles.emplace_back(child->get_handle());
         }
-        curr = s.top();
     }
 
     return handles;
@@ -129,6 +129,7 @@ std::pair<std::vector<scenegraph::value_type>, std::vector<scenegraph::handle_ty
     s.push(curr);
     while (!s.empty())
     {
+        curr = s.top();
         s.pop();
         for (auto iter = curr->rbegin(); iter != curr->rend(); ++iter)
         {
@@ -137,7 +138,6 @@ std::pair<std::vector<scenegraph::value_type>, std::vector<scenegraph::handle_ty
             nodes.push_back(*child);
             handles.emplace_back(child->get_handle());
         }
-        curr = s.top();
     }
 
     return { nodes, handles };

@@ -227,6 +227,8 @@ void SceneManager::UnloadScene(std::shared_ptr<IScene> scene)
 {
     if (scene && scene->IsLoaded())
     {
+        scene->Exit();
+
         scene->UnloadScene();
         scene->m_isLoaded = false;
     }

@@ -90,6 +90,7 @@ public:
     void Terminate();
 
     bool RemoveScene(std::string_view filename);
+    bool RemoveScene(key_type id);
 
 private:
     void LoadScene(std::shared_ptr<IScene> scene);

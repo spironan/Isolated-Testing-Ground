@@ -201,11 +201,16 @@ void SceneManager::Terminate()
 bool SceneManager::RemoveScene(std::string_view filename)
 {
     key_type key = StringHash::GenerateFNV1aHash(filename);
+    
+    return RemoveScene(key);
+}
 
-    if (m_scenes.contains(key))
+bool SceneManager::RemoveScene(key_type id)
+{
+    if (m_scenes.contains(id))
     {
-        m_scenes.at(key)->m_id = REMOVED;
-        m_scenes.erase(key);
+        m_scenes.at(id)->m_id = REMOVED;
+        m_scenes.erase(id);
         return true;
     }
 

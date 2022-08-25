@@ -47,6 +47,8 @@ public:
     bool move_to(shared_pointer sibling_node, bool next = false);
     bool move_to_after(shared_pointer sibling_node);
 
+    void set_debug_name(std::string_view new_name);
+
 private:
     // contains handle to actual data in scene-graph hierarchy
     weak_pointer m_parent = {};

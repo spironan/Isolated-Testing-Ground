@@ -191,6 +191,11 @@ bool scenenode::move_to_after(shared_pointer sibling_node)
     return move_to(sibling_node, true);
 }
 
+void scenenode::set_debug_name(std::string_view new_name)
+{
+    m_debugName = new_name;
+}
+
 void PrintSceneNode(scenenode::const_raw_pointer node)
 {
     // "Computation" with raw_pointer-to-const

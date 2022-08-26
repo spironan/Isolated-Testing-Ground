@@ -88,8 +88,8 @@ bool SceneManager::ReloadActiveScene()
 {
     if (HasActiveScene())
     {
-        m_activeScene->ReloadScene();
-        m_activeScene->Init();
+        UnloadScene(m_activeScene);
+        LoadScene(m_activeScene);
         return true;
     }
 

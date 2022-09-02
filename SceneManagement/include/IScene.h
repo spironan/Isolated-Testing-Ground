@@ -26,7 +26,7 @@ class IScene
 {
 public:
     // ID used to index the scene in scene manager
-    using ID_type = StringHash::size_type;
+    using ID_type = util::StringHash::size_type;
 
 public:
     virtual void Init() = 0;

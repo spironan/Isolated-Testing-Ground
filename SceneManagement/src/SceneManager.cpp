@@ -74,7 +74,7 @@ bool SceneManager::ChangeScene(key_type id)
 bool SceneManager::ChangeScene(std::string_view name)
 {
     // calls SceneManager::ChangeScene(key_type id)
-    key_type key = StringHash::GenerateFNV1aHash(name);
+    key_type key = util::StringHash::GenerateFNV1aHash(name);
     return ChangeScene(key);
 }
 
@@ -200,7 +200,7 @@ void SceneManager::Terminate()
 
 bool SceneManager::RemoveScene(std::string_view filename)
 {
-    key_type key = StringHash::GenerateFNV1aHash(filename);
+    key_type key = util::StringHash::GenerateFNV1aHash(filename);
     
     return RemoveScene(key);
 }

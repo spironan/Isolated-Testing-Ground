@@ -52,7 +52,7 @@ public:
     {
         static_assert(std::is_base_of_v<IScene, Derived>, "Scene must be derived from IScene class!");
 
-        key_type key = StringHash::GenerateFNV1aHash(name);
+        key_type key = util::StringHash::GenerateFNV1aHash(name);
 
         if (m_scenes.contains(key))
             return { false, NO_SCENE, std::weak_ptr<Derived>() };

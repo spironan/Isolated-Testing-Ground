@@ -33,8 +33,8 @@ public:
     handle_type get_handle() const;
     handle_type get_parent_handle() const;
     weak_pointer get_parent() const;
-    std::vector<handle_type> get_all_child_handles() const;
-    std::vector<handle_type> get_direct_child_handles() const;
+    std::vector<handle_type> get_all_child_handles(bool includeItself = false) const;
+    std::vector<handle_type> get_direct_child_handles(bool includeItself = false) const;
     void print_recursive() const;
 
     std::vector<shared_pointer> get_direct_child() const { return m_childs; }

@@ -133,9 +133,14 @@ scenenode::weak_pointer scenenode::get_parent() const
     return m_parent;
 }
 
-std::vector<scenenode::handle_type> scenenode::get_all_child_handles() const
+std::vector<scenenode::handle_type> scenenode::get_all_child_handles(bool includeItself) const
 {
     std::vector<handle_type> handles;
+
+    if (includeItself)
+    {
+        handles.emplace_back(m_handle);
+    }
 
     for (auto& child : m_childs)
     {
@@ -150,9 +155,14 @@ std::vector<scenenode::handle_type> scenenode::get_all_child_handles() const
     return handles;
 }
 
-std::vector<scenenode::handle_type> scenenode::get_direct_child_handles() const
+std::vector<scenenode::handle_type> scenenode::get_direct_child_handles(bool includeItself) const
 {
     std::vector<handle_type> handles;
+
+    if (includeItself)
+    {
+        handles.emplace_back(m_handle);
+    }
 
     for (auto& child : m_childs)
     {

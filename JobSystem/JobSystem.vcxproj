@@ -145,6 +145,7 @@
   <ItemGroup>
     <ClInclude Include="src\2nd Attempt\JobSystem2.h" />
     <ClInclude Include="src\JobSystem.h" />
+    <ClInclude Include="src\ThreadPool\ThreadPool.h" />
     <ClInclude Include="src\utils\Timer.h" />
     <ClInclude Include="src\WorkStealingQueue.h" />
     <ClInclude Include="src\WorkStealingQueue.hpp" />
@@ -152,6 +153,7 @@
   <ItemGroup>
     <ClCompile Include="src\JobSystem.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\ThreadPool\ThreadPool.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

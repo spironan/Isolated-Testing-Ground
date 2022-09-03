@@ -1,18 +1,20 @@
 #include "src/utils/Timer.h"
 //#include "src/JobSystem.h"
 
-#include "src/2nd Attempt/JobSystem2.h"
-#include <string>
-#include <thread>
+//#include "src/2nd Attempt/JobSystem2.h"
+//#include <string>
+//#include <thread>
 
-void foo(std::size_t N)
-{
-    long double x{ 1.234e5 };
-    for (std::size_t k = 0; k < N; k++)
-    {
-        x += std::sqrt(x);
-    }
-}
+#include "src/ThreadPool/ThreadPool.h"
+
+//void foo(std::size_t N)
+//{
+//    long double x{ 1.234e5 };
+//    for (std::size_t k = 0; k < N; k++)
+//    {
+//        x += std::sqrt(x);
+//    }
+//}
 
 //void fn(Job* job, const void* data)
 //{
@@ -23,6 +25,25 @@ void foo(std::size_t N)
 //    (void)data;
 //}
 
+void testFnc(Task* task_ptr)
+{
+    (void*)task_ptr;
+
+    double a = 5.0;
+    double b = 7.0;
+
+    for (size_t i = 0; i < 100000000; ++i)
+    {
+        a *= std::sqrtl(b);
+    }
+
+    long double x{ 1.234e5 };
+    for (std::size_t k = 0; k < 100000000; k++)
+    {
+        x += std::sqrt(x);
+    }
+}
+
 int main()
 {
     // Memory Leak Checker in Debug builds
@@ -32,6 +53,163 @@ int main()
     // Uncomment to cause a break on allocation for debugging
     //_CrtSetBreakAlloc(/*Allocation Number here*/);
 #endif
+    ThreadPool m_threadpool;
+    {
+        Task* task0 = m_threadpool.CreateTask(testFnc);
+        Task* task1 = m_threadpool.CreateTask(testFnc);
+        Task* task2 = m_threadpool.CreateTask(testFnc);
+        Task* task3 = m_threadpool.CreateTask(testFnc);
+        Task* task4 = m_threadpool.CreateTask(testFnc);
+        Task* task5 = m_threadpool.CreateTask(testFnc);
+        m_threadpool.SubmitTask(task0);
+        m_threadpool.SubmitTask(task1);
+        m_threadpool.SubmitTask(task2);
+        m_threadpool.SubmitTask(task3);
+        m_threadpool.SubmitTask(task4);
+        m_threadpool.SubmitTask(task5);
+    }
+
+    {
+        Task* task0 = m_threadpool.CreateTask(testFnc);
+        Task* task1 = m_threadpool.CreateTask(testFnc);
+        Task* task2 = m_threadpool.CreateTask(testFnc);
+        Task* task3 = m_threadpool.CreateTask(testFnc);
+        Task* task4 = m_threadpool.CreateTask(testFnc);
+        Task* task5 = m_threadpool.CreateTask(testFnc);
+        m_threadpool.SubmitTask(task0);
+        m_threadpool.SubmitTask(task1);
+        m_threadpool.SubmitTask(task2);
+        m_threadpool.SubmitTask(task3);
+        m_threadpool.SubmitTask(task4);
+        m_threadpool.SubmitTask(task5);
+    }
+    {
+        Task* task0 = m_threadpool.CreateTask(testFnc);
+        Task* task1 = m_threadpool.CreateTask(testFnc);
+        Task* task2 = m_threadpool.CreateTask(testFnc);
+        Task* task3 = m_threadpool.CreateTask(testFnc);
+        Task* task4 = m_threadpool.CreateTask(testFnc);
+        Task* task5 = m_threadpool.CreateTask(testFnc);
+        m_threadpool.SubmitTask(task0);
+        m_threadpool.SubmitTask(task1);
+        m_threadpool.SubmitTask(task2);
+        m_threadpool.SubmitTask(task3);
+        m_threadpool.SubmitTask(task4);
+        m_threadpool.SubmitTask(task5);
+    }
+    {
+        Task* task0 = m_threadpool.CreateTask(testFnc);
+        Task* task1 = m_threadpool.CreateTask(testFnc);
+        Task* task2 = m_threadpool.CreateTask(testFnc);
+        Task* task3 = m_threadpool.CreateTask(testFnc);
+        Task* task4 = m_threadpool.CreateTask(testFnc);
+        Task* task5 = m_threadpool.CreateTask(testFnc);
+        m_threadpool.SubmitTask(task0);
+        m_threadpool.SubmitTask(task1);
+        m_threadpool.SubmitTask(task2);
+        m_threadpool.SubmitTask(task3);
+        m_threadpool.SubmitTask(task4);
+        m_threadpool.SubmitTask(task5);
+    }
+    {
+        Task* task0 = m_threadpool.CreateTask(testFnc);
+        Task* task1 = m_threadpool.CreateTask(testFnc);
+        Task* task2 = m_threadpool.CreateTask(testFnc);
+        Task* task3 = m_threadpool.CreateTask(testFnc);
+        Task* task4 = m_threadpool.CreateTask(testFnc);
+        Task* task5 = m_threadpool.CreateTask(testFnc);
+        m_threadpool.SubmitTask(task0);
+        m_threadpool.SubmitTask(task1);
+        m_threadpool.SubmitTask(task2);
+        m_threadpool.SubmitTask(task3);
+        m_threadpool.SubmitTask(task4);
+        m_threadpool.SubmitTask(task5);
+    }
+    {
+        Task* task0 = m_threadpool.CreateTask(testFnc);
+        Task* task1 = m_threadpool.CreateTask(testFnc);
+        Task* task2 = m_threadpool.CreateTask(testFnc);
+        Task* task3 = m_threadpool.CreateTask(testFnc);
+        Task* task4 = m_threadpool.CreateTask(testFnc);
+        Task* task5 = m_threadpool.CreateTask(testFnc);
+        m_threadpool.SubmitTask(task0);
+        m_threadpool.SubmitTask(task1);
+        m_threadpool.SubmitTask(task2);
+        m_threadpool.SubmitTask(task3);
+        m_threadpool.SubmitTask(task4);
+        m_threadpool.SubmitTask(task5);
+    }
+    {
+        Task* task0 = m_threadpool.CreateTask(testFnc);
+        Task* task1 = m_threadpool.CreateTask(testFnc);
+        Task* task2 = m_threadpool.CreateTask(testFnc);
+        Task* task3 = m_threadpool.CreateTask(testFnc);
+        Task* task4 = m_threadpool.CreateTask(testFnc);
+        Task* task5 = m_threadpool.CreateTask(testFnc);
+        m_threadpool.SubmitTask(task0);
+        m_threadpool.SubmitTask(task1);
+        m_threadpool.SubmitTask(task2);
+        m_threadpool.SubmitTask(task3);
+        m_threadpool.SubmitTask(task4);
+        m_threadpool.SubmitTask(task5);
+    }
+    {
+        Task* task0 = m_threadpool.CreateTask(testFnc);
+        Task* task1 = m_threadpool.CreateTask(testFnc);
+        Task* task2 = m_threadpool.CreateTask(testFnc);
+        Task* task3 = m_threadpool.CreateTask(testFnc);
+        Task* task4 = m_threadpool.CreateTask(testFnc);
+        Task* task5 = m_threadpool.CreateTask(testFnc);
+        m_threadpool.SubmitTask(task0);
+        m_threadpool.SubmitTask(task1);
+        m_threadpool.SubmitTask(task2);
+        m_threadpool.SubmitTask(task3);
+        m_threadpool.SubmitTask(task4);
+        m_threadpool.SubmitTask(task5);
+    }
+    {
+        Task* task0 = m_threadpool.CreateTask(testFnc);
+        Task* task1 = m_threadpool.CreateTask(testFnc);
+        Task* task2 = m_threadpool.CreateTask(testFnc);
+        Task* task3 = m_threadpool.CreateTask(testFnc);
+        Task* task4 = m_threadpool.CreateTask(testFnc);
+        Task* task5 = m_threadpool.CreateTask(testFnc);
+        m_threadpool.SubmitTask(task0);
+        m_threadpool.SubmitTask(task1);
+        m_threadpool.SubmitTask(task2);
+        m_threadpool.SubmitTask(task3);
+        m_threadpool.SubmitTask(task4);
+        m_threadpool.SubmitTask(task5);
+    }
+    {
+        Task* task0 = m_threadpool.CreateTask(testFnc);
+        Task* task1 = m_threadpool.CreateTask(testFnc);
+        Task* task2 = m_threadpool.CreateTask(testFnc);
+        Task* task3 = m_threadpool.CreateTask(testFnc);
+        Task* task4 = m_threadpool.CreateTask(testFnc);
+        Task* task5 = m_threadpool.CreateTask(testFnc);
+        m_threadpool.SubmitTask(task0);
+        m_threadpool.SubmitTask(task1);
+        m_threadpool.SubmitTask(task2);
+        m_threadpool.SubmitTask(task3);
+        m_threadpool.SubmitTask(task4);
+        m_threadpool.SubmitTask(task5);
+    }
+    {
+        Task* task0 = m_threadpool.CreateTask(testFnc);
+        Task* task1 = m_threadpool.CreateTask(testFnc);
+        Task* task2 = m_threadpool.CreateTask(testFnc);
+        Task* task3 = m_threadpool.CreateTask(testFnc);
+        Task* task4 = m_threadpool.CreateTask(testFnc);
+        Task* task5 = m_threadpool.CreateTask(testFnc);
+        m_threadpool.SubmitTask(task0);
+        m_threadpool.SubmitTask(task1);
+        m_threadpool.SubmitTask(task2);
+        m_threadpool.SubmitTask(task3);
+        m_threadpool.SubmitTask(task4);
+        m_threadpool.SubmitTask(task5);
+    }
+    while (true);
 
     //std::vector<std::thread> threads;
     //char test = 'a';
@@ -45,7 +223,7 @@ int main()
     //for (auto& thread : threads)
     //    thread.join();
 
-    {
+    /*{
         Profiler prof{ "Compiler Barrier Producer Consumer" };
 
         std::thread producer(JobSystem::ProducerThreadCompilerBarrier);
@@ -62,7 +240,7 @@ int main()
         std::thread consumer(JobSystem::ConsumerThreadMemoryFence);
         producer.join();
         consumer.join();
-    }
+    }*/
 
     //JobSystem::SpinLockXCHG(&test);
 

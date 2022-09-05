@@ -77,3 +77,8 @@ private:
     static Task* AllocateTask();
     static bool HasTaskCompleted(Task const* task);
 };
+
+// potential ideas:
+// - threadsafe queue for global, threadsafe stack for thread local
+// - threadsafe map
+// - 

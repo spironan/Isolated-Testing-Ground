@@ -10,9 +10,9 @@ std::vector<Thread> ThreadPool::Threads;
 std::array<Task, ThreadPool::s_MaxTask> ThreadPool::m_taskList;
 
 static thread_local uint32_t LocalThreadId = 0u;
-static std::atomic_bool g_workerTheadActive = false;
-static std::uint32_t g_allocatedTask = 0u;
-static std::uint32_t g_totalActiveTask = 0u;
+static std::atomic_bool g_workerTheadActive = true;
+static std::atomic_uint32_t g_allocatedTask = 0u;      // potential data race here.
+static std::atomic_uint32_t g_totalActiveTask = 0u;    // potential data race here.
 
 //#define PRINT
 #ifdef PRINT
@@ -23,12 +23,17 @@ static std::uint32_t g_totalActiveTask = 0u;
 
 Thread::Thread()
 {
+    // could have a try catch here.
+
     m_thread = std::thread
     {
         [&]()
         {
             LocalThreadId = TotalInitializedThreads++;
             
+            // try to use std barrier or latch
+            // using latch to wait
+
             // wait!
             while (TotalInitializedThreads != ThreadPool::TotalWorkerThreads); 
             PRINT_MSG(std::string("Thread [") + std::to_string(LocalThreadId) + std::string("] Started\n"));
@@ -45,7 +50,7 @@ Thread::Thread()
                     --g_totalActiveTask;
                 }
                 PRINT_MSG(std::string("Thread [") + std::to_string(LocalThreadId) + std::string("] Has nothing to do!\n"));
-                //std::this_thread::yield();
+                std::this_thread::yield();
             }
             
             PRINT_MSG(std::string("Thread [") + std::to_string(LocalThreadId) + std::string("] Terminated\n"));
@@ -87,8 +92,8 @@ void ThreadPool::Init()
     Threads.resize(TotalWorkerThreads);
     while (TotalInitializedThreads != TotalWorkerThreads);
     
-    // Ensure all threads have completed their queue before beginning
-    g_workerTheadActive = true;
+    //// Ensure all threads have completed their queue before beginning
+    //g_workerTheadActive = true; // this could be too slow.
 }
 
 void ThreadPool::Shutdown()

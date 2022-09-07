@@ -80,7 +80,8 @@ bool SceneManager::ChangeScene(std::string_view name)
 
 bool SceneManager::ChangeScene(std::weak_ptr<IScene> scene)
 {
-    return scene.lock() != nullptr && SetActiveScene(scene.lock()->GetID());
+    std::shared_ptr<IScene> target = scene.lock();
+    return target != nullptr && SetActiveScene(target->GetID());
     //m_nextScene = scene;
 }
 

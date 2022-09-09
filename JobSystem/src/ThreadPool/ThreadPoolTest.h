@@ -4,7 +4,7 @@
 struct Test
 {
 public:
-    static void testFnc(Task* task_ptr)
+    static inline void testFnc(Task* task_ptr)
     {
         (void*)task_ptr;
 
@@ -15,7 +15,7 @@ public:
         }
     }
 
-    static void testFncIter(Task* task_ptr)
+    static inline void testFncIter(Task* task_ptr)
     {
         std::size_t* startId = static_cast<std::size_t*>(task_ptr->data[0]);
         std::size_t* endId = static_cast<std::size_t*>(task_ptr->data[1]);
@@ -25,7 +25,7 @@ public:
         }
     }
 
-    static void Test1a()
+    static inline void Test1a()
     {
         ThreadPool::Init();
         Task* task0 = ThreadPool::CreateTask(testFnc);
@@ -34,14 +34,14 @@ public:
         ThreadPool::Shutdown();
     }
 
-    static void Test1b()
+    static inline void Test1b()
     {
         Task* t = nullptr;
         (void*)t;
         testFnc(t);
     }
 
-    static void Test2a()
+    static inline void Test2a()
     {
         ThreadPool::Init();
         Task* task = nullptr;
@@ -54,7 +54,7 @@ public:
         ThreadPool::Shutdown();
     }
 
-    static void Test2b()
+    static inline void Test2b()
     {
         for (std::size_t i = 0; i < ThreadPool::s_MaxTask; ++i)
         {
@@ -64,7 +64,7 @@ public:
         }
     }
 
-    static void Test3()
+    static inline void Test3()
     {
         ThreadPool::Init();
         for (std::size_t i = 0; i < ThreadPool::s_MaxTask * 2; ++i)
@@ -76,7 +76,7 @@ public:
         ThreadPool::Shutdown();
     }
 
-    static void Test4()
+    static inline void Test4()
     {
         ThreadPool::Init();
         Task* task = nullptr;

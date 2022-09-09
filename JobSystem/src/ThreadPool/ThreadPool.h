@@ -4,6 +4,7 @@
 #include <queue>
 #include <functional>
 #include <array>
+#include <latch>
 
 // A unit of work
 struct Task
@@ -48,7 +49,11 @@ constexpr bool IsPowerOfTwo(const std::uint32_t n)
 struct ThreadPool
 {
 public:
-    ThreadPool() = delete;
+    static ThreadPool& default_pool()
+    {
+        static ThreadPool tp{};
+        return tp;
+    }
 
     // Each task should be of considerable size. Too small and we lose performance.
     static constexpr std::uint32_t s_MaxTask = 64;
@@ -56,26 +61,37 @@ public:
     // needs to be power of 2
     static_assert(IsPowerOfTwo(s_MaxTask));
 
-    static void Init();
-    static void Shutdown();
+    ThreadPool(std::uint32_t thread_count = std::thread::hardware_concurrency());
+    ~ThreadPool();
 
-    /*ThreadPool();
-    ~ThreadPool() { Shutdown(); }*/
+    inline std::size_t count() const { return m_threadCount; }
 
-    static Task* CreateTask(Task::func function);
-    static void SubmitTask(Task* task);
-    static void WaitForTask(Task const* task);
+    Task* CreateTask(Task::func function);
+    void SubmitTask(Task* task);
+    void WaitForTask(Task const* task);
 
-    static std::uint32_t TotalWorkerThreads;
+    std::uint32_t TotalWorkerThreads;
+
 private:
     //std::thread MasterThread;
-    static std::vector<Thread> Threads;
-    static std::array<Task, s_MaxTask> m_taskList;
-
+    //std::vector<Thread> Threads;
+    
+    std::latch m_startFlag = std::latch{ 1 };
+    std::atomic_bool m_terminate = false;
+    std::size_t m_threadCount = 1;
+    std::vector<std::thread> m_workerThreads;
+    std::array<Task, s_MaxTask> m_taskList;
+    //static std::atomic_bool m_terminate = true;
     //static std::uint32_t TotalThreadCount;
 
-    static Task* AllocateTask();
-    static bool HasTaskCompleted(Task const* task);
+private:
+    Task* AllocateTask();
+    bool HasTaskCompleted(Task const* task);
+
+    void WorkerThreadFunc();
+    
+    void Init();
+    void Shutdown();
 };
 
 // potential ideas:

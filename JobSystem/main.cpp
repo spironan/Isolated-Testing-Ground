@@ -52,7 +52,7 @@ int main()
     //_CrtSetBreakAlloc(/*Allocation Number here*/);
 #endif
     
-    //Test::Test1a();
+    Test::Test1a();
     
     ts::threadsafe_queue<A> m_queue;
     

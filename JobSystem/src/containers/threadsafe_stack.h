@@ -11,84 +11,39 @@ namespace ts
     class threadsafe_stack
     {
     public:
+        using mutex_type = std::mutex;
         using value_type = T;
-        using return_type = std::shared_ptr<T>;
         using reference = value_type&;
         using const_reference = value_type const&;
-        using size_type = int;
+        using size_type = std::size_t;
 
+        void push(value_type const& v);
+        void push(value_type&& v);
+
+        std::shared_ptr<T> wait_and_pop();
+        std::shared_ptr<T> try_pop();
+        
+        void clear();
+
+        bool empty() const;
+        size_type size() const;
+
+    public:
         threadsafe_stack() = default;
         ~threadsafe_stack() = default;
-        threadsafe_stack(threadsafe_stack&& other)
-        {
-            do_copy_construct(other);
-        }
-
-        threadsafe_stack(threadsafe_stack const& other)
-        {
-            do_copy_construct(other);
-        }
+        threadsafe_stack(threadsafe_stack&& other);
+        threadsafe_stack(threadsafe_stack const& other);
 
         threadsafe_stack operator=(threadsafe_stack const&) =delete;
         threadsafe_stack operator=(threadsafe_stack&&) = delete;
 
-        reference top()
-        {
-            return top_node;
-        }
-
-        const_reference top() const
-        {
-            return top_node;
-        }
-
-        bool empty() const
-        {
-            return size() == 0;
-        }
-
-        size_type size() const
-        {
-            return num_elems.load();
-        }
-
-        void push(value_type const& v)
-        {
-            do_push(std::make_shared<T>(v));
-            cv.notify_one();
-        }
-        
-        void emplace(value_type && v)
-        {
-            do_push(std::make_shared<T>(std::forward<T>(v)));
-            cv.notify_one();
-        }
-        
-        return_type  wait_and_pop()
-        {
-            // lock the top mutex
-            std::unique_lock<mutex_type> lock{ top_mutex };
-            cv.wait(lock, [&]() { return top_node != nullptr; });
-            return do_pop();
-        }
-
-        return_type  try_pop()
-        {
-            // lock the top mutex
-            std::unique_lock<mutex_type> lock{ top_mutex };
-            if (top_node == nullptr) 
-                return nullptr;
-
-            return do_pop();
-        }
-
     private:
-        void do_push(std::shared_ptr<T> _value)
+        void do_push(std::shared_ptr<T> value)
         {
             // Construct a new node.
             std::unique_ptr<node> new_node = std::make_unique<node>();
             // Set the new node's value to the new value.
-            new_node->value = _value;
+            new_node->value = value;
             // Lock the top mutex.
             std::lock_guard<mutex_type> lock(top_mutex);
             // Set the new node's next node to the old top node.
@@ -96,7 +51,7 @@ namespace ts
             // Set the new node as the top node.
             top_node = std::move(new_node);
             // Increase the element counter.
-            ++num_elems;
+            ++count;
         }
 
         std::shared_ptr<T> do_pop()
@@ -106,23 +61,22 @@ namespace ts
             // Point the top node to it's next node.
             top_node = std::move(top_node->next);
             // Decrease the element counter.
-            --num_elems;
+            --count;
             // Return the extracted value.
             return head_data;
         }
 
-        void do_copy_construct(threadsafe_stack const& _threadsafe_stack) requires std::copyable<T>
+        void do_copy_construct(threadsafe_stack const& other) requires std::copyable<T>
         {
             // Lock the top mutex.
-            std::lock_guard<mutex_type> lock(_threadsafe_stack.top_mutex);
+            std::lock_guard<mutex_type> lock(other.top_mutex);
             // Set the element counter.
-            num_elems = _threadsafe_stack.num_elements.load();
+            count = other.num_elements.load();
             // Copy All Nodes from other thread recursively
-            top_node = _threadsafe_stack.top_node ? std::move(_threadsafe_stack.top_node->copy()) : nullptr;
+            top_node = other.top_node ? std::move(other.top_node->make_copy()) : nullptr;
         }
 
     private:
-        using mutex_type = std::timed_mutex;
 
         struct node
         {
@@ -131,11 +85,11 @@ namespace ts
             // Next node.
             std::unique_ptr<node> next;
 
-            std::unique_ptr<node> copy() const
+            std::unique_ptr<node> make_copy() const
             {
                 std::unique_ptr<node> copied_node = std::make_unique<node>();
-                copied_node->value_ = std::make_shared<T>(*value);
-                copied_node->next_ = next ? std::move(next->copy()) : nullptr;
+                copied_node->value = std::make_shared<T>(*value);
+                copied_node->next = next ? std::move(next->make_copy()) : nullptr;
                 return copied_node;
             }
         };
@@ -143,10 +97,92 @@ namespace ts
         // mutex at the top of the stack
         mutable mutex_type top_mutex;
         // condition variable to notify waiting threads of a push
-        std::condition_variable_any cv;
+        std::condition_variable data_cv;
         // top node of the stack
         std::unique_ptr<node> top_node = nullptr;
         // number of elements in stack
-        std::atomic_size_t num_elems = 0;
+        std::atomic_size_t count = 0;
     };
+
+    //
+    //Threadsafe stack.
+    //
+    //Invariants:
+    //- top_node == nullptr means that the stack is empty.
+    //- Traversing top_node->next will eventually lead to the bottom node.
+    //
+    //Addtional Requirements:
+    //- threadsafe_stack must be able to support type T where T is a non-copyable or non-movable type.
+    //- threadsafe_stack does not have to support a non-copyable AND non-movable type.
+    //
+    //Additional Notes:
+    //- threadsafe_stack is non-copyable AND non-movable. (As it has non-copyable and non-movable members.)
+    //
+
+    template<typename T>
+    inline bool threadsafe_stack<T>::empty() const
+    {
+        return size() == 0;
+    }
+    
+    template<typename T>
+    inline threadsafe_stack<T>::size_type threadsafe_stack<T>::size() const
+    {
+        return count.load();
+    }
+
+    template<typename T>
+    inline void threadsafe_stack<T>::push(value_type const& v)
+    {
+        do_push(std::make_shared<T>(v));
+        data_cv.notify_one();
+    }
+    
+    template<typename T>
+    inline void threadsafe_stack<T>::push(value_type&& v)
+    {
+        do_push(std::make_shared<T>(std::forward<T>(v)));
+        data_cv.notify_one();
+    }
+    
+    template<typename T>
+    inline std::shared_ptr<T> threadsafe_stack<T>::wait_and_pop()
+    {
+        // lock the top mutex
+        std::unique_lock<mutex_type> lock{ top_mutex };
+        data_cv.wait(lock, [&]() { return top_node != nullptr; });
+        return do_pop();
+    }
+    
+    template<typename T>
+    inline std::shared_ptr<T> threadsafe_stack<T>::try_pop()
+    {
+        // lock the top mutex
+        std::unique_lock<mutex_type> lock{ top_mutex };
+
+        if (top_node == nullptr)
+            return nullptr;
+
+        return do_pop();
+    }
+
+    template<typename T>
+    inline void threadsafe_stack<T>::clear()
+    {
+        std::lock_guard<std::mutex> lock{ top_mutex };
+        while (top_node != nullptr)
+            do_pop();
+    }
+    
+    template<typename T>
+    inline threadsafe_stack<T>::threadsafe_stack(threadsafe_stack&& other)
+    {
+        do_copy_construct(other);
+    }
+
+    template<typename T>
+    inline threadsafe_stack<T>::threadsafe_stack(threadsafe_stack const& other)
+    {
+        do_copy_construct(other);
+    }
 }

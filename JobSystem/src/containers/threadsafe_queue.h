@@ -34,7 +34,10 @@ namespace ts
 
         threadsafe_queue(threadsafe_queue const&) = delete;
         threadsafe_queue& operator=(threadsafe_queue const&) = delete;
-    
+        
+        threadsafe_queue(threadsafe_queue &&) = delete;
+        threadsafe_queue& operator=(threadsafe_queue &&) = delete;
+
     private:
         struct node
         {
@@ -67,7 +70,7 @@ namespace ts
         {
             std::unique_ptr<node> old_head = std::move(head);
             head = std::move(old_head->next);
-            count--;
+            --count;
             return old_head;
         }
 
@@ -115,6 +118,26 @@ namespace ts
             return pop_head();
         }
     };
+    
+    //
+    //Threadsafe queue implementation without std::queue.
+    //
+    //Invariants:
+    //- tail->value_ == nullptr
+    //- tail->next_ == nullptr
+    //- head == tail_ implies an empty list.
+    //- A single element list has head_->next == tail.
+    //- For each node x in the queue, where x != tail, x->value points to an instance of T and x->next points to the next node in the queue.
+    //- x->next == tail implies x is the last node in the queue.
+    //- Traversing head->next will eventually lead to tail.
+    //
+    //Addtional Requirements:
+    //- threadsafe_queue must be able to support type T where T is a non-copyable or non-movable type.
+    //- threadsafe_queue does not have to support a non-copyable AND non-movable type.
+    //
+    //Additional Notes:
+    //- threadsafe_queue is non-copyable AND non-movable. (As it has non-copyable and non-movable members.)
+    
 
     template<typename T>
     inline std::shared_ptr<T> threadsafe_queue<T>::try_pop()
@@ -154,7 +177,7 @@ namespace ts
             node* const new_tail = dummy.get();
             tail->next = std::move(dummy);
             tail = new_tail;
-            count++;
+            ++count;
         }
         data_cv.notify_one();
     }

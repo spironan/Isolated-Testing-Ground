@@ -144,6 +144,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\2nd Attempt\JobSystem2.h" />
+    <ClInclude Include="src\containers\threadsafe_queue.h" />
+    <ClInclude Include="src\containers\threadsafe_stack.h" />
     <ClInclude Include="src\JobSystem.h" />
     <ClInclude Include="src\ThreadPool\ThreadPool.h" />
     <ClInclude Include="src\ThreadPool\ThreadPoolTest.h" />

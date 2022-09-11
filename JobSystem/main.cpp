@@ -1,6 +1,8 @@
 #include "src/utils/Timer.h"
 //#include "src/JobSystem.h"
 
+#include "src/OpenMP/OpenMpTest.h"
+
 //#include "src/2nd Attempt/JobSystem2.h"
 //#include <string>
 //#include <thread>
@@ -42,6 +44,7 @@ struct A
     }
 };
 
+
 int main()
 {
     // Memory Leak Checker in Debug builds
@@ -51,48 +54,56 @@ int main()
     // Uncomment to cause a break on allocation for debugging
     //_CrtSetBreakAlloc(/*Allocation Number here*/);
 #endif
-    
-    Test::Test1a();
-    
-    ts::threadsafe_queue<A> m_queue;
-    
-    A test;
-    test.i = 10;
-    test.c = 'c';
-    test.d = 0.1;
 
-    std::thread a([&]() { m_queue.push(A()); });
-    std::thread b([&]() { m_queue.push(test); });
-    std::thread c([&]() { m_queue.push(test); });
+    OpenMpTest a;
+    //a.fn();
+    
+    //a.calculatePi_Serial();
+    a.calculatePi_Ex2();
+    a.calculatePi_Ex3();
+    a.calculatePi_Ex4();
 
-    //if (m_queue.empty())
+    //Test::Test1a();
+    //
+    //ts::threadsafe_queue<A> m_queue;
+    //
+    //A test;
+    //test.i = 10;
+    //test.c = 'c';
+    //test.d = 0.1;
+
+    //std::thread a([&]() { m_queue.push(A()); });
+    //std::thread b([&]() { m_queue.push(test); });
+    //std::thread c([&]() { m_queue.push(test); });
+
+    ////if (m_queue.empty())
+    ////{
+    ////    m_queue.push(A());
+    ////    
+    ////    m_queue.push(test);
+    ////    m_queue.push(std::move(test));
+    ////    //m_queue.push(test.i, test.c, test.d);
+    ////}
+    ////else
+    ////{
+    //    A val;
+    //    m_queue.try_pop(val);
+    //    std::cout << val << std::endl;
+    //    std::shared_ptr<A> second = m_queue.try_pop();
+    //    if(second)
+    //        std::cout << *second << std::endl;
+    ////}
+
+    //std::cout << m_queue.size() << std::endl;
+
+    //m_queue.clear();
+
+    //while (!m_queue.empty())
     //{
-    //    m_queue.push(A());
-    //    
-    //    m_queue.push(test);
-    //    m_queue.push(std::move(test));
-    //    //m_queue.push(test.i, test.c, test.d);
-    //}
-    //else
-    //{
-        A val;
-        m_queue.try_pop(val);
-        std::cout << val << std::endl;
-        std::shared_ptr<A> second = m_queue.try_pop();
-        if(second)
-            std::cout << *second << std::endl;
+    //    std::cout << *m_queue.wait_and_pop() << std::endl;
     //}
 
-    std::cout << m_queue.size() << std::endl;
-
-    m_queue.clear();
-
-    while (!m_queue.empty())
-    {
-        std::cout << *m_queue.wait_and_pop() << std::endl;
-    }
-
-    a.join(), b.join(), c.join();
+    //a.join(), b.join(), c.join();
 
     //std::vector<std::thread> threads;
     //char test = 'a';

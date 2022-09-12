@@ -193,7 +193,8 @@ Transform::vec3 Transform::GetGlobalScale() const
 
 void Transform::RecalculateLocalValues()
 {
-    mat4 result{ m_localTransform };
+    // recalculate local values given global transform.
+    mat4 result{ m_globalTransform };
     m_position = result[3];
     result[3] = glm::vec4{ 0.f, 0.f, 0.f, 1.0f };
     m_scale = vec3{ glm::length(result[0]), glm::length(result[1]), glm::length(result[2]) };
@@ -204,6 +205,9 @@ void Transform::RecalculateLocalValues()
 
     m_orientation = quaternion::from_matrix({ result[0], result[1], result[2] });
     m_eulerRotation = quaternion::to_euler(m_orientation);
+
+    //Calulate the new local transform
+    CalculateLocalTransform();
 }
 
 void Transform::CalculateLocalTransform()

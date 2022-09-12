@@ -76,7 +76,7 @@ public:
     mat4 m_localTransform = mat4{ 1.f };
 
     vec3 m_position = vec3{ 0.f };
-    vec3 m_eulerRotation = vec3{ 0.f };
+    vec3 m_eulerRotation = vec3{ 0.f };                 // should be displayed in degrees.
     quat m_orientation = quat{ quat::identity() };      //used internally
     vec3 m_scale = vec3{ 1.f };
 

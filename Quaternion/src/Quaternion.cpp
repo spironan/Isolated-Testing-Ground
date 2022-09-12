@@ -72,7 +72,7 @@ quaternion quaternion::from_euler(euler const& euler_angle_radians)
     return finalOrientation;
 }
 
-// euler return is already in degrees.
+// euler return is in radians.
 quaternion::euler quaternion::to_euler(quaternion const& q)
 {
     return glm::eulerAngles(q.value);

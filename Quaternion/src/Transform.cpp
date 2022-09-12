@@ -44,11 +44,11 @@ Transform::vec3& Transform::Scale() { m_dirty = true; return m_scale; }
 
 void Transform::SetPosition(vec3 const& pos) { m_dirty = true; m_position = pos; }
 
-void Transform::SetEulerAngles(vec3 const& eulerAngle)
+void Transform::SetEulerAngles(vec3 const& eulerAngle_degrees)
 {
     m_dirty = true;
-    m_eulerRotation = eulerAngle;// { glm::radians(eulerAngle.x), glm::radians(eulerAngle.y), glm::radians(eulerAngle.z) };
-    m_orientation = quaternion::from_euler(m_eulerRotation);
+    m_eulerRotation = eulerAngle_degrees; // { glm::radians(eulerAngle.x), glm::radians(eulerAngle.y), glm::radians(eulerAngle.z) };
+    m_orientation = quaternion::from_euler(glm::radians(m_eulerRotation));
 }
 
 void Transform::SetScale(vec3 const& scale) { m_dirty = true; m_scale = scale; }
@@ -58,9 +58,9 @@ void Transform::SetGlobalPosition(vec3 const& position)
     SetGlobalTransform(position, GetGlobalRotationRad(), GetGlobalScale());
 }
 
-void Transform::SetGlobalAngle(vec3 const& euler_angles)
+void Transform::SetGlobalAngle(vec3 const& euler_angles_degrees)
 {
-    SetGlobalTransform(GetGlobalPosition(), euler_angles, GetGlobalScale());
+    SetGlobalTransform(GetGlobalPosition(), euler_angles_degrees, GetGlobalScale());
 }
 
 void Transform::SetGlobalScale(vec3 const& scale)
@@ -68,12 +68,12 @@ void Transform::SetGlobalScale(vec3 const& scale)
     SetGlobalTransform(GetGlobalPosition(), GetGlobalRotationRad(), scale);
 }
 
-void Transform::SetGlobalTransform(vec3 const& position, vec3 const& euler_angles, vec3 const& scale)
+void Transform::SetGlobalTransform(vec3 const& position, vec3 const& euler_angles_degrees, vec3 const& scale)
 {
     m_dirty = true;
 
     auto t = glm::translate(glm::mat4{ 1.f }, position);
-    auto [axis, angle] = quaternion::to_axis_angle(quaternion::from_euler(euler_angles));
+    auto [axis, angle] = quaternion::to_axis_angle(quaternion::from_euler(glm::radians(euler_angles_degrees)));
     auto r = glm::rotate(glm::mat4{ 1.f }, angle, axis);
     auto s = glm::scale(glm::mat4{ 1.f }, scale);
 
@@ -204,7 +204,7 @@ void Transform::RecalculateLocalValues()
     result[2] /= m_scale[2];
 
     m_orientation = quaternion::from_matrix({ result[0], result[1], result[2] });
-    m_eulerRotation = quaternion::to_euler(m_orientation);
+    m_eulerRotation = glm::degrees(quaternion::to_euler(m_orientation));
 
     //Calulate the new local transform
     CalculateLocalTransform();
@@ -216,7 +216,7 @@ void Transform::CalculateLocalTransform()
     m_hasChanged = true;
 
     auto t = glm::translate(glm::mat4{ 1.f }, m_position);
-    m_orientation = quaternion::from_euler(m_eulerRotation);
+    m_orientation = quaternion::from_euler(glm::radians(m_eulerRotation));
     auto [axis, angle] = quaternion::to_axis_angle(m_orientation);
     auto r = glm::rotate(glm::mat4{ 1.f }, angle, axis);
     auto s = glm::scale(glm::mat4{ 1.f }, m_scale);

@@ -91,6 +91,9 @@ public:
 
     reference operator[](size_type index);
 
+    operator glm::quat() { return value; }
+    operator const glm::quat() const { return value; }
+
     glm::quat value;
     //value_type x, y, z, w;
 };

@@ -64,12 +64,14 @@ quaternion::value_type quaternion::dot(quaternion const& lhs, quaternion const& 
 
 quaternion quaternion::from_euler(euler const& euler_angle_radians)
 {
-    quaternion quatAroundX = quaternion{ {1.0, 0.0, 0.0}, euler_angle_radians.x };
-    quaternion quatAroundY = quaternion{ {0.0, 1.0, 0.0}, euler_angle_radians.y };
-    quaternion quatAroundZ = quaternion{ {0.0, 0.0, 1.0}, euler_angle_radians.z };
-    quaternion finalOrientation = quatAroundX * quatAroundY * quatAroundZ;
-
-    return finalOrientation;
+    return glm::quat(euler_angle_radians);
+    
+    // might need to play around and switch around
+    //quaternion quatAroundX = quaternion{ {1.0, 0.0, 0.0}, euler_angle_radians.x };
+    //quaternion quatAroundY = quaternion{ {0.0, 1.0, 0.0}, euler_angle_radians.y };
+    //quaternion quatAroundZ = quaternion{ {0.0, 0.0, 1.0}, euler_angle_radians.z };
+    //quaternion finalOrientation = quatAroundX * quatAroundY * quatAroundZ;
+    //return finalOrientation;
 }
 
 // euler return is in radians.

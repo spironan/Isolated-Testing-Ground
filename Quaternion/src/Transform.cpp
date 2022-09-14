@@ -41,36 +41,85 @@ Transform::vec3& Transform::Position() { return m_position; }
 
 Transform::vec3& Transform::Scale() { return m_scale; }
 
-void Transform::SetPosition(vec3 const& pos) { m_position = pos; }
+void Transform::SetPosition(vec3 pos) { m_position = pos; }
 
-void Transform::SetRotation(vec3 const& euler_angles_degrees)
+void Transform::SetRotation(vec3 euler_angles_degrees)
 {
+    if (euler_angles_degrees.x > 180.f || euler_angles_degrees.x < -180.f)
+    {
+        euler_angles_degrees.x -= 360.f * std::round(euler_angles_degrees.x / 180);
+    }
+
+    // restrict yaw to +-90
+    while(euler_angles_degrees.y > 90.f || euler_angles_degrees.y < -90.f)
+    {
+        //euler_angles_degrees.y -= 360.f * std::round(euler_angles_degrees.y / 180);
+        auto sign = euler_angles_degrees.y / std::abs(euler_angles_degrees.y);
+        euler_angles_degrees.y -= 90.f * sign;
+        euler_angles_degrees.x += 180.f * sign;
+        euler_angles_degrees.z += 180.f * sign;
+    }
+    
+    if (euler_angles_degrees.z > 180.f || euler_angles_degrees.z < -180.f)
+    {
+        //        euler_angles_degrees.z = 360.f - euler_angles_degrees.z;
+        euler_angles_degrees.z -= 360.f * std::round(euler_angles_degrees.z / 180);
+    }
+
     m_eulerRotation = euler_angles_degrees;
     m_orientation = quaternion::from_euler(glm::radians(m_eulerRotation));
 }
 
-void Transform::SetScale(vec3 const& scale) { m_scale = scale; }
+void Transform::SetRotation(quat quaternion)
+{
+    m_orientation.value = glm::normalize(quaternion.value); 
+    m_eulerRotation = glm::degrees(quaternion::to_euler(m_orientation));
+}
 
-void Transform::SetGlobalPosition(vec3 const& position)
+void Transform::SetScale(vec3 scale) { m_scale = scale; }
+
+void Transform::SetGlobalPosition(vec3 position)
 {
     m_globalPosition = position;
     CalculateGlobalTransform();
 }
 
-void Transform::SetGlobalRotation(vec3 const& euler_angles_degrees)
+void Transform::SetGlobalRotation(vec3 euler_angles_degrees)
 {
+    /*if (euler_angles_degrees.y > 90.f || euler_angles_degrees.y < -90.f)
+    {
+        euler_angles_degrees.y -= 180.f * std::round(euler_angles_degrees.y / 90);
+    }
+
+    if (euler_angles_degrees.x > 180.f || euler_angles_degrees.x < -180.f)
+    {
+        euler_angles_degrees.x -= 360.f * std::round(euler_angles_degrees.x / 180);
+    }
+
+    if (euler_angles_degrees.z > 180.f || euler_angles_degrees.z < -180.f)
+    {
+        euler_angles_degrees.z -= 360.f * std::round(euler_angles_degrees.z / 180);
+    }*/
+
     m_globalEulerRotation = euler_angles_degrees;
     m_globalOrientation = quaternion::from_euler(glm::radians(m_globalEulerRotation));
     CalculateGlobalTransform();
 }
 
-void Transform::SetGlobalScale(vec3 const& scale)
+void Transform::SetGlobalRotation(quat quaternion)
+{
+    m_globalOrientation.value = glm::normalize(quaternion.value);
+    m_globalEulerRotation = glm::degrees(quaternion::to_euler(m_globalOrientation));
+    CalculateGlobalTransform();
+}
+
+void Transform::SetGlobalScale(vec3 scale)
 {
     m_globalScale = scale;
     CalculateGlobalTransform();
 }
 
-void Transform::SetGlobalTransform(vec3 const& position, vec3 const& euler_angles_degrees, vec3 const& scale)
+void Transform::SetGlobalTransform(vec3 position, vec3 euler_angles_degrees, vec3 scale)
 {
     m_globalPosition = position;
 
@@ -103,7 +152,7 @@ void Transform::SetGlobalTransform(vec3 const& position, vec3 const& euler_angle
     //RecalculateLocalValues();
 }
 
-void Transform::SetGlobalTransform(mat4 const& desired_global_transform)
+void Transform::SetGlobalTransform(mat4 desired_global_transform)
 {
     m_globalTransform = desired_global_transform;
     DecomposeValues(m_globalTransform, m_globalScale, m_globalEulerRotation, m_globalOrientation.value, m_globalPosition);
@@ -210,7 +259,8 @@ Transform::vec3 Transform::GetGlobalScale() const
 void Transform::CalculateLocalTransform()
 {
     auto t = glm::translate(glm::mat4{ 1.f }, m_position);
-    m_orientation = quaternion::from_euler(glm::radians(m_eulerRotation));
+    //m_orientation = quaternion::from_euler(glm::radians(m_eulerRotation));
+    m_eulerRotation = glm::degrees(quaternion::to_euler(m_orientation));
     auto [axis, angle] = quaternion::to_axis_angle(m_orientation);
     auto r = glm::rotate(glm::mat4{ 1.f }, angle, axis);
     auto s = glm::scale(glm::mat4{ 1.f }, m_scale);
@@ -221,7 +271,8 @@ void Transform::CalculateLocalTransform()
 void Transform::CalculateGlobalTransform()
 {
     auto t = glm::translate(glm::mat4{ 1.f }, m_globalPosition);
-    m_globalOrientation = quaternion::from_euler(glm::radians(m_globalEulerRotation));
+    //m_globalOrientation = quaternion::from_euler(glm::radians(m_globalEulerRotation));
+    m_globalEulerRotation = glm::degrees(quaternion::to_euler(m_globalOrientation));
     auto [axis, angle] = quaternion::to_axis_angle(m_globalOrientation);
     auto r = glm::rotate(glm::mat4{ 1.f }, angle, axis);
     auto s = glm::scale(glm::mat4{ 1.f }, m_globalScale);
@@ -232,7 +283,7 @@ void Transform::CalculateGlobalTransform()
     CalculateLocalTransform();
 }
 
-void Transform::DecomposeValues(mat4 const& matrix, glm::vec3& scale, glm::vec3& euler_angle, glm::quat& orientation, glm::vec3& position)
+void Transform::DecomposeValues(mat4 matrix, glm::vec3& scale, glm::vec3& euler_angle, glm::quat& orientation, glm::vec3& position)
 {
     glm::vec3 unusedSkew;
     glm::vec4 unusedPerspective;
@@ -265,7 +316,7 @@ void Transform::DecomposeValues(mat4 const& matrix, glm::vec3& scale, glm::vec3&
 }
 
 
-std::ostream& operator<< (std::ostream& os, Transform::vec3 const& vector)
+std::ostream& operator<< (std::ostream& os, Transform::vec3 vector)
 {
     os << std::fixed << std::setprecision(4);
 
@@ -273,7 +324,7 @@ std::ostream& operator<< (std::ostream& os, Transform::vec3 const& vector)
     return os;
 }
 
-std::ostream& operator<< (std::ostream& os, Transform::mat4 const& matrix)
+std::ostream& operator<< (std::ostream& os, Transform::mat4 matrix)
 {
     os << std::fixed << std::setprecision(4) << "\n";
     auto mat = glm::transpose(matrix);

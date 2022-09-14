@@ -70,7 +70,7 @@ quaternion quaternion::from_euler(euler const& euler_angle_radians)
     //quaternion quatAroundX = quaternion{ {1.0, 0.0, 0.0}, euler_angle_radians.x };
     //quaternion quatAroundY = quaternion{ {0.0, 1.0, 0.0}, euler_angle_radians.y };
     //quaternion quatAroundZ = quaternion{ {0.0, 0.0, 1.0}, euler_angle_radians.z };
-    //quaternion finalOrientation = quatAroundX * quatAroundY * quatAroundZ;
+    //quaternion finalOrientation = quatAroundY * quatAroundZ * quatAroundX ;
     //return finalOrientation;
 }
 

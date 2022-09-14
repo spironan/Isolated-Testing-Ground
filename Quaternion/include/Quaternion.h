@@ -94,6 +94,7 @@ public:
     operator glm::quat() { return value; }
     operator const glm::quat() const { return value; }
 
+    // pitch = x, yaw = y, roll = z
     glm::quat value;
     //value_type x, y, z, w;
 };

@@ -13,7 +13,7 @@ Transform::vec3 Transform::GetPosition() const { return m_position; }
 
 Transform::quat Transform::GetRotationQuat() const { return m_orientation.value; }
 
-Transform::vec3 Transform::GetEulerAngles() const { return m_eulerRotation; } //auto res = quaternion::to_euler(m_orientation);  return { glm::degrees(res.x), glm::degrees(res.y), glm::degrees(res.z) }; }
+Transform::vec3 Transform::GetEulerAngles() const { return m_eulerRotation; }
 
 Transform::vec3 Transform::GetScale() const { return m_scale; }
 
@@ -33,28 +33,23 @@ Transform::mat4 Transform::GetLocalMatrix() const { return m_localTransform; }
 
 Transform::mat4 Transform::GetGlobalMatrix() const { return m_globalTransform; }
 
-bool Transform::HasChanged() const { return m_hasChanged; }
-
-bool Transform::IsDirty() const { return m_dirty; }
-
 /*-----------------------------------------------------------------------------*/
 /* Setter Functions                                                            */
 /*-----------------------------------------------------------------------------*/
 
-Transform::vec3& Transform::Position() { m_dirty = true; return m_position; }
+Transform::vec3& Transform::Position() { return m_position; }
 
-Transform::vec3& Transform::Scale() { m_dirty = true; return m_scale; }
+Transform::vec3& Transform::Scale() { return m_scale; }
 
-void Transform::SetPosition(vec3 const& pos) { m_dirty = true; m_position = pos; }
+void Transform::SetPosition(vec3 const& pos) { m_position = pos; }
 
 void Transform::SetRotation(vec3 const& euler_angles_degrees)
 {
-    m_dirty = true;
-    m_eulerRotation = euler_angles_degrees; // { glm::radians(eulerAngle.x), glm::radians(eulerAngle.y), glm::radians(eulerAngle.z) };
+    m_eulerRotation = euler_angles_degrees;
     m_orientation = quaternion::from_euler(glm::radians(m_eulerRotation));
 }
 
-void Transform::SetScale(vec3 const& scale) { m_dirty = true; m_scale = scale; }
+void Transform::SetScale(vec3 const& scale) { m_scale = scale; }
 
 void Transform::SetGlobalPosition(vec3 const& position)
 {
@@ -214,9 +209,6 @@ Transform::vec3 Transform::GetGlobalScale() const
 
 void Transform::CalculateLocalTransform()
 {
-    m_dirty = false;
-    m_hasChanged = true;
-
     auto t = glm::translate(glm::mat4{ 1.f }, m_position);
     m_orientation = quaternion::from_euler(glm::radians(m_eulerRotation));
     auto [axis, angle] = quaternion::to_axis_angle(m_orientation);

@@ -16,7 +16,7 @@ int main()
 
         transform.Position()    = {1, 1, 1};
         transform.Scale()       = { 10, 10, 10 };
-        transform.SetEulerAngles({ 10, 20, 30 });
+        transform.SetRotation({ 10, 20, 30 });
 
         printvalues(transform);
     }
@@ -26,7 +26,7 @@ int main()
 
         transform.Position()    = { .5f, 10, -1 };
         transform.Scale()       = { 10, .2f, -2.f };
-        transform.SetEulerAngles({ 20, 20, 20});
+        transform.SetRotation({ 20, 20, 20});
         transform.CalculateLocalTransform();
         transform.SetGlobalTransform(transform.GetPosition(), transform.GetEulerAngles(), transform.GetScale());
 
@@ -50,8 +50,8 @@ void printvalues(Transform const& transform)
     std::cout << "Global Sca" << transform.GetGlobalScale() << "\n";
     std::cout << "Global Mat" << transform.GetGlobalMatrix() << "\n";
 
-    std::cout << "Has Changed " << transform.HasChanged() << "\n";
-    std::cout << "Is Dirty " << transform.IsDirty() << "\n";
+    /*std::cout << "Has Changed " << transform.HasChanged() << "\n";
+    std::cout << "Is Dirty " << transform.IsDirty() << "\n";*/
 
     std::cout << "Local Right " << transform.LocalRight() << "\n";
     std::cout << "Local Up " << transform.LocalUp() << "\n";

@@ -38,9 +38,6 @@ public:
     mat4 GetLocalMatrix()  const;
     mat4 GetGlobalMatrix() const;
 
-    bool HasChanged()      const;
-    bool IsDirty()         const;
-
     /*-----------------------------------------------------------------------------*/
     /* Setter Functions                                                            */
     /*-----------------------------------------------------------------------------*/
@@ -71,7 +68,6 @@ public:
     // only allowing users to use the functions above this line.
 public:
     void CalculateLocalTransform();
-    //void RecalculateLocalValues();
 
     void CalculateGlobalTransform();
     void DecomposeValues(mat4 const& matrix, glm::vec3& scale, glm::vec3& euler_angle, glm::quat& orientation, glm::vec3& position);
@@ -90,8 +86,6 @@ public:
     quat m_orientation = quat{ quat::identity() };          // used internally
     vec3 m_scale = vec3{ 1.f };
 
-    bool m_dirty = false;
-    bool m_hasChanged = false;
 };
 
 static constexpr std::size_t transform_size = sizeof(Transform);

@@ -54,13 +54,11 @@ public:
 
     // Local Setters
     void SetPosition(vec3 pos);
-    //void SetRotation(vec3 euler_angles_degrees);
     void SetRotation(quat quaternion);
     void SetScale(vec3 scale);
 
     // Global Setters
     void SetGlobalPosition(vec3 position);
-    //void SetGlobalRotation(vec3 euler_angles_degrees);
     void SetGlobalRotation(quat quaternion);
     void SetGlobalScale(vec3 scale);
     void SetGlobalTransform(vec3 position, vec3 euler_angles_degrees, vec3 scale);
@@ -79,12 +77,10 @@ public:
     mat4 m_localTransform = mat4{ 1.f };
 
     vec3 m_globalPosition = vec3{ 0.f };
-    //vec3 m_globalEulerRotation = vec3{ 0.f };               // should be displayed in degrees.
     quat m_globalOrientation = quat{ quat::identity() };    // used internally
     vec3 m_globalScale = vec3{ 1.f };
 
     vec3 m_position = vec3{ 0.f };
-    //vec3 m_eulerRotation = vec3{ 0.f };                     // should be displayed in degrees.
     quat m_orientation = quat{ quat::identity() };          // used internally
     vec3 m_scale = vec3{ 1.f };
 

@@ -43,11 +43,6 @@ Transform::vec3& Transform::Scale() { return m_scale; }
 
 void Transform::SetPosition(vec3 pos) { m_position = pos; }
 
-//void Transform::SetRotation(vec3 euler_angles_degrees)
-//{
-//    m_orientation = quaternion::from_euler(glm::radians(euler_angles_degrees));
-//}
-
 void Transform::SetRotation(quat quaternion)
 {
     m_orientation.value = glm::normalize(quaternion.value); 
@@ -60,12 +55,6 @@ void Transform::SetGlobalPosition(vec3 position)
     m_globalPosition = position;
     CalculateGlobalTransform();
 }
-
-//void Transform::SetGlobalRotation(vec3 euler_angles_degrees)
-//{
-//    m_globalOrientation = quaternion::from_euler(glm::radians(euler_angles_degrees));
-//    CalculateGlobalTransform();
-//}
 
 void Transform::SetGlobalRotation(quat quaternion)
 {
@@ -82,8 +71,7 @@ void Transform::SetGlobalScale(vec3 scale)
 void Transform::SetGlobalTransform(vec3 position, vec3 euler_angles_degrees, vec3 scale)
 {
     m_globalPosition = position;
-
-    //m_globalEulerRotation = euler_angles_degrees;
+    
     m_globalOrientation = quaternion::from_euler(glm::radians(euler_angles_degrees));
 
     m_globalScale = scale;

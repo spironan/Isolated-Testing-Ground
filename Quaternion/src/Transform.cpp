@@ -13,7 +13,7 @@ Transform::vec3 Transform::GetPosition() const { return m_position; }
 
 Transform::quat Transform::GetRotationQuat() const { return m_orientation.value; }
 
-Transform::vec3 Transform::GetEulerAngles() const { return m_eulerRotation; }
+Transform::vec3 Transform::GetEulerAngles() const { return glm::degrees(quaternion::to_euler(m_orientation)); } //return m_eulerRotation; }
 
 Transform::vec3 Transform::GetScale() const { return m_scale; }
 
@@ -43,37 +43,14 @@ Transform::vec3& Transform::Scale() { return m_scale; }
 
 void Transform::SetPosition(vec3 pos) { m_position = pos; }
 
-void Transform::SetRotation(vec3 euler_angles_degrees)
-{
-    if (euler_angles_degrees.x > 180.f || euler_angles_degrees.x < -180.f)
-    {
-        euler_angles_degrees.x -= 360.f * std::round(euler_angles_degrees.x / 180);
-    }
-
-    // restrict yaw to +-90
-    while(euler_angles_degrees.y > 90.f || euler_angles_degrees.y < -90.f)
-    {
-        //euler_angles_degrees.y -= 360.f * std::round(euler_angles_degrees.y / 180);
-        auto sign = euler_angles_degrees.y / std::abs(euler_angles_degrees.y);
-        euler_angles_degrees.y -= 90.f * sign;
-        euler_angles_degrees.x += 180.f * sign;
-        euler_angles_degrees.z += 180.f * sign;
-    }
-    
-    if (euler_angles_degrees.z > 180.f || euler_angles_degrees.z < -180.f)
-    {
-        //        euler_angles_degrees.z = 360.f - euler_angles_degrees.z;
-        euler_angles_degrees.z -= 360.f * std::round(euler_angles_degrees.z / 180);
-    }
-
-    m_eulerRotation = euler_angles_degrees;
-    m_orientation = quaternion::from_euler(glm::radians(m_eulerRotation));
-}
+//void Transform::SetRotation(vec3 euler_angles_degrees)
+//{
+//    m_orientation = quaternion::from_euler(glm::radians(euler_angles_degrees));
+//}
 
 void Transform::SetRotation(quat quaternion)
 {
     m_orientation.value = glm::normalize(quaternion.value); 
-    m_eulerRotation = glm::degrees(quaternion::to_euler(m_orientation));
 }
 
 void Transform::SetScale(vec3 scale) { m_scale = scale; }
@@ -84,32 +61,15 @@ void Transform::SetGlobalPosition(vec3 position)
     CalculateGlobalTransform();
 }
 
-void Transform::SetGlobalRotation(vec3 euler_angles_degrees)
-{
-    /*if (euler_angles_degrees.y > 90.f || euler_angles_degrees.y < -90.f)
-    {
-        euler_angles_degrees.y -= 180.f * std::round(euler_angles_degrees.y / 90);
-    }
-
-    if (euler_angles_degrees.x > 180.f || euler_angles_degrees.x < -180.f)
-    {
-        euler_angles_degrees.x -= 360.f * std::round(euler_angles_degrees.x / 180);
-    }
-
-    if (euler_angles_degrees.z > 180.f || euler_angles_degrees.z < -180.f)
-    {
-        euler_angles_degrees.z -= 360.f * std::round(euler_angles_degrees.z / 180);
-    }*/
-
-    m_globalEulerRotation = euler_angles_degrees;
-    m_globalOrientation = quaternion::from_euler(glm::radians(m_globalEulerRotation));
-    CalculateGlobalTransform();
-}
+//void Transform::SetGlobalRotation(vec3 euler_angles_degrees)
+//{
+//    m_globalOrientation = quaternion::from_euler(glm::radians(euler_angles_degrees));
+//    CalculateGlobalTransform();
+//}
 
 void Transform::SetGlobalRotation(quat quaternion)
 {
     m_globalOrientation.value = glm::normalize(quaternion.value);
-    m_globalEulerRotation = glm::degrees(quaternion::to_euler(m_globalOrientation));
     CalculateGlobalTransform();
 }
 
@@ -123,8 +83,8 @@ void Transform::SetGlobalTransform(vec3 position, vec3 euler_angles_degrees, vec
 {
     m_globalPosition = position;
 
-    m_globalEulerRotation = euler_angles_degrees;
-    m_globalOrientation = quaternion::from_euler(glm::radians(m_globalEulerRotation));
+    //m_globalEulerRotation = euler_angles_degrees;
+    m_globalOrientation = quaternion::from_euler(glm::radians(euler_angles_degrees));
 
     m_globalScale = scale;
 
@@ -155,7 +115,7 @@ void Transform::SetGlobalTransform(vec3 position, vec3 euler_angles_degrees, vec
 void Transform::SetGlobalTransform(mat4 desired_global_transform)
 {
     m_globalTransform = desired_global_transform;
-    DecomposeValues(m_globalTransform, m_globalScale, m_globalEulerRotation, m_globalOrientation.value, m_globalPosition);
+    DecomposeValues(m_globalTransform, m_globalScale, m_globalOrientation.value, m_globalPosition);
 
     //glm::mat4 parentGlobalTf = static_cast<GameObject>(m_parent).Transform().GetGlobalMatrix();
     //if (parentGlobalTf == glm::mat4::identity())
@@ -244,25 +204,13 @@ Transform::vec3 Transform::GetGlobalRotationRad() const
 *//*****************************************************************************/
 Transform::vec3 Transform::GetGlobalScale() const
 {
-    ////calculate global scale by calculating the length of each row which represents
-    ////the scale of that particular axis.
-    //glm::vec3 scale = glm::vec3{ glm::length(m_globalTransform[0]), glm::length(m_globalTransform[1]), glm::length(m_globalTransform[2]) };
-
-    //// support for negative scaling
-    //glm::vec3 negativeScaling{ m_scale.x < 0.f ? -1.f : 1.f, m_scale.y < 0.f ? -1.f : 1.f , m_scale.z < 0.f ? -1.f : 1.f };
-
-    //return scale * negativeScaling;
-
     return m_globalScale;
 }
 
 void Transform::CalculateLocalTransform()
 {
     auto t = glm::translate(glm::mat4{ 1.f }, m_position);
-    //m_orientation = quaternion::from_euler(glm::radians(m_eulerRotation));
-    m_eulerRotation = glm::degrees(quaternion::to_euler(m_orientation));
-    auto [axis, angle] = quaternion::to_axis_angle(m_orientation);
-    auto r = glm::rotate(glm::mat4{ 1.f }, angle, axis);
+    auto r = glm::mat4{ quaternion::to_matrix(m_orientation) };
     auto s = glm::scale(glm::mat4{ 1.f }, m_scale);
 
     m_localTransform = t * r * s;
@@ -271,24 +219,20 @@ void Transform::CalculateLocalTransform()
 void Transform::CalculateGlobalTransform()
 {
     auto t = glm::translate(glm::mat4{ 1.f }, m_globalPosition);
-    //m_globalOrientation = quaternion::from_euler(glm::radians(m_globalEulerRotation));
-    m_globalEulerRotation = glm::degrees(quaternion::to_euler(m_globalOrientation));
-    auto [axis, angle] = quaternion::to_axis_angle(m_globalOrientation);
-    auto r = glm::rotate(glm::mat4{ 1.f }, angle, axis);
+    auto r = glm::mat4{ quaternion::to_matrix(m_globalOrientation) };
     auto s = glm::scale(glm::mat4{ 1.f }, m_globalScale);
 
     m_globalTransform = t * r * s;
 
-    DecomposeValues(m_globalTransform, m_scale, m_eulerRotation, m_orientation.value, m_position);
+    DecomposeValues(m_globalTransform, m_scale, m_orientation.value, m_position);
     CalculateLocalTransform();
 }
 
-void Transform::DecomposeValues(mat4 matrix, glm::vec3& scale, glm::vec3& euler_angle, glm::quat& orientation, glm::vec3& position)
+void Transform::DecomposeValues(mat4 matrix, glm::vec3& scale, glm::quat& orientation, glm::vec3& position)
 {
     glm::vec3 unusedSkew;
     glm::vec4 unusedPerspective;
     glm::decompose(matrix, scale, orientation, position, unusedSkew, unusedPerspective);
-    euler_angle = glm::degrees(quaternion::to_euler(orientation));
 
     //RecalculateLocalValues();
 

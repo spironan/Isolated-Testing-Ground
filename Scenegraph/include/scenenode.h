@@ -25,7 +25,7 @@ public:
     auto operator<=>(scenenode const&) const = default;
 
     void detach();
-    void add_child(shared_pointer node);
+    bool add_child(shared_pointer node);
 
     bool contains(shared_pointer node) const;
     std::size_t get_direct_child_count() const;

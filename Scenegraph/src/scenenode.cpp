@@ -83,14 +83,14 @@ void scenenode::detach()
     }
 }
 
-void scenenode::add_child(shared_pointer node)
+bool scenenode::add_child(shared_pointer node)
 {
     // ensure target is eligible.
     // ensure parent is not already target and target's child dont contain parent
     if (node == shared_from_this() ||
         node->m_parent.lock() == shared_from_this() ||
         node->contains(shared_from_this()))
-        return;
+        return false;
 
     // if attached to another parent
     if (scenenode::shared_pointer parent = node->m_parent.lock())
@@ -101,6 +101,8 @@ void scenenode::add_child(shared_pointer node)
     // performing re-pointing
     node->m_parent = shared_from_this();
     m_childs.emplace_back(node);
+
+    return true;
 }
 
 size_t scenenode::get_direct_child_count() const

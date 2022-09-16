@@ -1,4 +1,6 @@
 #include "..\include\Transform.h"
+#include "..\include\Transform.h"
+#include "..\include\Transform.h"
 #include "Quaternion/include/Transform.h"
 #include <glm/ext/matrix_transform.hpp>
 #include <iomanip>
@@ -49,6 +51,12 @@ void Transform::SetRotation(quat quaternion)
 }
 
 void Transform::SetScale(vec3 scale) { m_scale = scale; }
+
+void Transform::SetLocalTransform(mat4 desired_local_transform)
+{
+    m_localTransform = desired_local_transform;
+    DecomposeValues(m_localTransform, m_scale, m_orientation.value, m_position);
+}
 
 void Transform::SetGlobalPosition(vec3 position)
 {
@@ -123,35 +131,11 @@ Transform::vec3 Transform::GetGlobalPosition() const
     return m_globalPosition;
 }
 
-/****************************************************************************//*!
-    @brief    Retrieves the global rotation matrix of this object from the global
-            transformation matrix.
-
-    @warning  Take note that in most cases, unless being called after the Transform
-            Runtime has been executed, this will be the position from the previous
-            frame.
-
-    @return   An glm::mat4 that represents the current rotation matrix
-            of this GameObject in global coordinates.
-*//*****************************************************************************/
 Transform::mat4 Transform::GetGlobalRotationMatrix() const
 {
-    //return quaternion::to_matrix(m_orientation);
     return quaternion::to_matrix(m_globalOrientation);
 }
 
-/****************************************************************************//*!
-    @brief    Retrieves the global rotation of this object in degress
-            from the global transformation matrix.
-            link to explaination : https://tinyurl.com/DeriveTRSfrom2dMat
-
-    @warning  Take note that in most cases, unless being called after the Transform
-            Runtime has been executed, this will be the rotation from the previous
-            frame.
-
-    @return   A float in degrees that represents the rotation angle of the previous
-            frame of this Component in global coordinates.
-*//*****************************************************************************/
 Transform::vec3 Transform::GetGlobalRotationDeg() const
 {
     return glm::degrees(GetGlobalRotationRad());
@@ -162,34 +146,11 @@ Transform::quat Transform::GetGlobalRotationQuat() const
     return m_globalOrientation;
 }
 
-/****************************************************************************//*!
-    @brief    Retrieves the global rotation of this object in radians
-            from the global transformation matrix.
-            link to explaination : https://tinyurl.com/DeriveTRSfrom2dMat
-
-    @warning  Take note that in most cases, unless being called after the Transform
-            Runtime has been executed, this will be the rotation from the previous
-            frame.
-
-    @return   A float in radians that represents the rotation angle of the previous
-            frame of this Component in global coordinates.
-*//*****************************************************************************/
 Transform::vec3 Transform::GetGlobalRotationRad() const
 {
     return quaternion::to_euler(m_globalOrientation);
 }
 
-/****************************************************************************//*!
-    @brief    Retrieves the global scale of this object from the global
-            transformation matrix.
-
-    @warning  Take note that in most cases, unless being called after the Transform
-            Runtime has been executed, this will be the position from the previous
-            frame.
-
-    @return   An glm::vec3 that represents the current scale of this GameObject in
-            global coordinates.
-*//*****************************************************************************/
 Transform::vec3 Transform::GetGlobalScale() const
 {
     return m_globalScale;
@@ -245,6 +206,12 @@ void Transform::DecomposeValues(mat4 matrix, glm::vec3& scale, glm::quat& orient
 
     ////Calulate the new local transform
     //CalculateLocalTransform();
+}
+
+void Transform::LookAt(vec3 target)
+{
+    m_localTransform = glm::lookAt(m_position, target, LocalUp());
+    DecomposeValues(m_localTransform, m_position, m_orientation.value, m_scale);
 }
 
 

@@ -56,6 +56,7 @@ public:
     void SetPosition(vec3 pos);
     void SetRotation(quat quaternion);
     void SetScale(vec3 scale);
+    void SetLocalTransform(mat4 desired_local_transform);
 
     // Global Setters
     void SetGlobalPosition(vec3 position);
@@ -71,6 +72,7 @@ public:
     void CalculateGlobalTransform();
     void DecomposeValues(mat4 matrix, glm::vec3& scale, glm::quat& orientation, glm::vec3& position);
 
+    void LookAt(vec3 target);
 public:
 
     mat4 m_globalTransform = mat4{ 1.f };

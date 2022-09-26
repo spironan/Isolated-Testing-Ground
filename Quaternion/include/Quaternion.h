@@ -1,7 +1,10 @@
 #pragma once
 #include <tuple>
 
+#ifndef GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
+#endif
+
 #include <glm/glm.hpp>
 #include <glm/ext/quaternion_float.hpp>
 #include <glm/ext/quaternion_common.hpp>

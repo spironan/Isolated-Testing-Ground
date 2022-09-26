@@ -1,6 +1,9 @@
 #pragma once
 
+#ifndef GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
+#endif
+
 #include <glm/glm.hpp>
 #include "Quaternion.h"
 

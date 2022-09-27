@@ -51,7 +51,7 @@ void Transform3D::SetRotation(quat quaternion)
 void Transform3D::SetTransform(mat4 desired_transform)
 {
     Transform = desired_transform;
-    DecomposeValues(Transform, Scale, Orientation.value, Position);
+    DecomposeValues(Transform, Position, Orientation.value, Scale);
 }
 
 void Transform3D::CalculateTransform()
@@ -63,7 +63,7 @@ void Transform3D::CalculateTransform()
     Transform = t * r * s;
 }
 
-void Transform3D::DecomposeValues(mat4 matrix, glm::vec3& scale, glm::quat& orientation, glm::vec3& position)
+void Transform3D::DecomposeValues(mat4 const matrix, glm::vec3& position, glm::quat& orientation, glm::vec3& scale)
 {
     glm::vec3 unusedSkew;
     glm::vec4 unusedPerspective;
@@ -74,7 +74,7 @@ void Transform3D::DecomposeValues(mat4 matrix, glm::vec3& scale, glm::quat& orie
 void Transform3D::LookAt(vec3 target)
 {
     Transform = glm::lookAt(Position, target, Up());
-    DecomposeValues(Transform, Scale, Orientation.value, Position);
+    DecomposeValues(Transform, Position, Orientation.value, Scale);
 }
 
 

@@ -27,26 +27,28 @@ public:
     /*-----------------------------------------------------------------------------*/
     vec3 GetPosition()     const;
     quat GetRotationQuat() const;
-    vec3 GetEulerAngles()  const;
+    vec3 GetEulerAnglesDeg()  const;
+    vec3 GetEulerAnglesRad()  const;
+    mat4 GetRotationMatrix()  const;
     vec3 GetScale()        const;
 
-    vec3 LocalRight()      const;
-    vec3 LocalUp()         const;
-    vec3 LocalForward()    const;
+    vec3 Right()      const;
+    vec3 Up()         const;
+    vec3 Forward()    const;
 
-    vec3 GlobalRight()     const;
-    vec3 GlobalUp()        const;
-    vec3 GlobalForward()   const;
+    //vec3 GlobalRight()     const;
+    //vec3 GlobalUp()        const;
+    //vec3 GlobalForward()   const;
 
     mat4 GetLocalMatrix()  const;
-    mat4 GetGlobalMatrix() const;
+    //mat4 GetGlobalMatrix() const;
 
-    vec3 GetGlobalPosition() const;
-    mat4 GetGlobalRotationMatrix() const;
-    vec3 GetGlobalRotationRad() const;  // return vec3 for rotation of each component (euler angles)
-    vec3 GetGlobalRotationDeg() const;  // return vec3 for rotation of each component (euler angles)
-    quat GetGlobalRotationQuat() const;
-    vec3 GetGlobalScale() const;
+    //vec3 GetGlobalPosition() const;
+    //mat4 GetGlobalRotationMatrix() const;
+    //vec3 GetGlobalRotationRad() const;  // return vec3 for rotation of each component (euler angles)
+    //vec3 GetGlobalRotationDeg() const;  // return vec3 for rotation of each component (euler angles)
+    //quat GetGlobalRotationQuat() const;
+    //vec3 GetGlobalScale() const;
 
     /*-----------------------------------------------------------------------------*/
     /* Setter Functions                                                            */
@@ -62,28 +64,28 @@ public:
     void SetLocalTransform(mat4 desired_local_transform);
 
     // Global Setters
-    void SetGlobalPosition(vec3 position);
+    /*void SetGlobalPosition(vec3 position);
     void SetGlobalRotation(quat quaternion);
     void SetGlobalScale(vec3 scale);
     void SetGlobalTransform(vec3 position, vec3 euler_angles_degrees, vec3 scale);
-    void SetGlobalTransform(mat4 desired_global_transform);
+    void SetGlobalTransform(mat4 desired_global_transform);*/
 
 
     // Functions and variables in the section below should be wrapped and hidden
     // only allowing users to use the functions above this line.
     void CalculateLocalTransform();
-    void CalculateGlobalTransform();
+    //void CalculateGlobalTransform();
     void DecomposeValues(mat4 matrix, glm::vec3& scale, glm::quat& orientation, glm::vec3& position);
 
     void LookAt(vec3 target);
 public:
 
-    mat4 m_globalTransform = mat4{ 1.f };
+    //mat4 m_globalTransform = mat4{ 1.f };
     mat4 m_localTransform = mat4{ 1.f };
 
-    vec3 m_globalPosition = vec3{ 0.f };
-    quat m_globalOrientation = quat{ quat::identity() };    // used internally
-    vec3 m_globalScale = vec3{ 1.f };
+    //vec3 m_globalPosition = vec3{ 0.f };
+    //quat m_globalOrientation = quat{ quat::identity() };    // used internally
+    //vec3 m_globalScale = vec3{ 1.f };
 
     vec3 m_position = vec3{ 0.f };
     quat m_orientation = quat{ quat::identity() };          // used internally

@@ -15,25 +15,29 @@ Transform::vec3 Transform::GetPosition() const { return m_position; }
 
 Transform::quat Transform::GetRotationQuat() const { return m_orientation.value; }
 
-Transform::vec3 Transform::GetEulerAngles() const { return glm::degrees(quaternion::to_euler(m_orientation)); } //return m_eulerRotation; }
+Transform::vec3 Transform::GetEulerAnglesDeg() const { return glm::degrees(GetEulerAnglesRad()); }
+
+Transform::vec3 Transform::GetEulerAnglesRad() const { return quaternion::to_euler(m_orientation); }
+
+Transform::mat4 Transform::GetRotationMatrix() const { return quaternion::to_matrix(m_orientation); }
 
 Transform::vec3 Transform::GetScale() const { return m_scale; }
 
-Transform::vec3 Transform::LocalRight() const { return m_localTransform[0]; }
+Transform::vec3 Transform::Right() const { return m_localTransform[0]; }
 
-Transform::vec3 Transform::LocalUp() const { return m_localTransform[1]; }
+Transform::vec3 Transform::Up() const { return m_localTransform[1]; }
 
-Transform::vec3 Transform::LocalForward() const { return m_localTransform[2]; }
+Transform::vec3 Transform::Forward() const { return m_localTransform[2]; }
 
-Transform::vec3 Transform::GlobalRight() const { return m_globalTransform[0]; }
+//Transform::vec3 Transform::GlobalRight() const { return m_globalTransform[0]; }
 
-Transform::vec3 Transform::GlobalUp() const { return m_globalTransform[1]; }
+//Transform::vec3 Transform::GlobalUp() const { return m_globalTransform[1]; }
 
-Transform::vec3 Transform::GlobalForward() const { return m_globalTransform[2]; }
+//Transform::vec3 Transform::GlobalForward() const { return m_globalTransform[2]; }
 
 Transform::mat4 Transform::GetLocalMatrix() const { return m_localTransform; }
 
-Transform::mat4 Transform::GetGlobalMatrix() const { return m_globalTransform; }
+//Transform::mat4 Transform::GetGlobalMatrix() const { return m_globalTransform; }
 
 /*-----------------------------------------------------------------------------*/
 /* Setter Functions                                                            */
@@ -58,103 +62,103 @@ void Transform::SetLocalTransform(mat4 desired_local_transform)
     DecomposeValues(m_localTransform, m_scale, m_orientation.value, m_position);
 }
 
-void Transform::SetGlobalPosition(vec3 position)
-{
-    m_globalPosition = position;
-    CalculateGlobalTransform();
-}
+//void Transform::SetGlobalPosition(vec3 position)
+//{
+//    m_globalPosition = position;
+//    CalculateGlobalTransform();
+//}
+//
+//void Transform::SetGlobalRotation(quat quaternion)
+//{
+//    m_globalOrientation.value = glm::normalize(quaternion.value);
+//    CalculateGlobalTransform();
+//}
+//
+//void Transform::SetGlobalScale(vec3 scale)
+//{
+//    m_globalScale = scale;
+//    CalculateGlobalTransform();
+//}
+//
+//void Transform::SetGlobalTransform(vec3 position, vec3 euler_angles_degrees, vec3 scale)
+//{
+//    m_globalPosition = position;
+//    
+//    m_globalOrientation = quaternion::from_euler(glm::radians(euler_angles_degrees));
+//
+//    m_globalScale = scale;
+//
+//    CalculateGlobalTransform();
+//
+//    //m_dirty = true;
+//
+//    //auto t = glm::translate(glm::mat4{ 1.f }, position);
+//    //auto [axis, angle] = quaternion::to_axis_angle(quaternion::from_euler(glm::radians(euler_angles_degrees)));
+//    //auto r = glm::rotate(glm::mat4{ 1.f }, angle, axis);
+//    //auto s = glm::scale(glm::mat4{ 1.f }, scale);
+//
+//    //glm::mat4 desiredGlobal = t * r * s; //glm::trs_matrix(position, euler_angles, scale);
+//    //m_globalTransform = desiredGlobal;
+//    ////glm::mat4 parentTf = GameObject::FindWithInstanceID(m_parent).Transform().GetGlobalMatrix();
+//    ////if (parentTf == glm::mat4::identity())
+//    ////{
+//    ////    m_localTransform = desiredGlobal;
+//    ////}
+//    ////else
+//    ////{
+//    ////    m_localTransform = glm::inverse(parentTf).value() * desiredGlobal;
+//    ////}
+//
+//    //RecalculateLocalValues();
+//}
 
-void Transform::SetGlobalRotation(quat quaternion)
-{
-    m_globalOrientation.value = glm::normalize(quaternion.value);
-    CalculateGlobalTransform();
-}
+//void Transform::SetGlobalTransform(mat4 desired_global_transform)
+//{
+//    m_globalTransform = desired_global_transform;
+//    DecomposeValues(m_globalTransform, m_globalScale, m_globalOrientation.value, m_globalPosition);
+//
+//    //glm::mat4 parentGlobalTf = static_cast<GameObject>(m_parent).Transform().GetGlobalMatrix();
+//    //if (parentGlobalTf == glm::mat4::identity())
+//    //{
+//    //    m_localTransform = desiredGlobalTransform;
+//    //}
+//    //else
+//    //{
+//    //    m_localTransform = glm::inverse(parentGlobalTf) * desiredGlobalTransform;
+//    //}
+//
+//    //RecalculateLocalValues();
+//}
 
-void Transform::SetGlobalScale(vec3 scale)
-{
-    m_globalScale = scale;
-    CalculateGlobalTransform();
-}
-
-void Transform::SetGlobalTransform(vec3 position, vec3 euler_angles_degrees, vec3 scale)
-{
-    m_globalPosition = position;
-    
-    m_globalOrientation = quaternion::from_euler(glm::radians(euler_angles_degrees));
-
-    m_globalScale = scale;
-
-    CalculateGlobalTransform();
-
-    //m_dirty = true;
-
-    //auto t = glm::translate(glm::mat4{ 1.f }, position);
-    //auto [axis, angle] = quaternion::to_axis_angle(quaternion::from_euler(glm::radians(euler_angles_degrees)));
-    //auto r = glm::rotate(glm::mat4{ 1.f }, angle, axis);
-    //auto s = glm::scale(glm::mat4{ 1.f }, scale);
-
-    //glm::mat4 desiredGlobal = t * r * s; //glm::trs_matrix(position, euler_angles, scale);
-    //m_globalTransform = desiredGlobal;
-    ////glm::mat4 parentTf = GameObject::FindWithInstanceID(m_parent).Transform().GetGlobalMatrix();
-    ////if (parentTf == glm::mat4::identity())
-    ////{
-    ////    m_localTransform = desiredGlobal;
-    ////}
-    ////else
-    ////{
-    ////    m_localTransform = glm::inverse(parentTf).value() * desiredGlobal;
-    ////}
-
-    //RecalculateLocalValues();
-}
-
-void Transform::SetGlobalTransform(mat4 desired_global_transform)
-{
-    m_globalTransform = desired_global_transform;
-    DecomposeValues(m_globalTransform, m_globalScale, m_globalOrientation.value, m_globalPosition);
-
-    //glm::mat4 parentGlobalTf = static_cast<GameObject>(m_parent).Transform().GetGlobalMatrix();
-    //if (parentGlobalTf == glm::mat4::identity())
-    //{
-    //    m_localTransform = desiredGlobalTransform;
-    //}
-    //else
-    //{
-    //    m_localTransform = glm::inverse(parentGlobalTf) * desiredGlobalTransform;
-    //}
-
-    //RecalculateLocalValues();
-}
-
-Transform::vec3 Transform::GetGlobalPosition() const 
-{
-    return m_globalPosition;
-}
-
-Transform::mat4 Transform::GetGlobalRotationMatrix() const
-{
-    return quaternion::to_matrix(m_globalOrientation);
-}
-
-Transform::vec3 Transform::GetGlobalRotationDeg() const
-{
-    return glm::degrees(GetGlobalRotationRad());
-}
-
-Transform::quat Transform::GetGlobalRotationQuat() const
-{
-    return m_globalOrientation;
-}
-
-Transform::vec3 Transform::GetGlobalRotationRad() const
-{
-    return quaternion::to_euler(m_globalOrientation);
-}
-
-Transform::vec3 Transform::GetGlobalScale() const
-{
-    return m_globalScale;
-}
+//Transform::vec3 Transform::GetGlobalPosition() const 
+//{
+//    return m_globalPosition;
+//}
+//
+//Transform::mat4 Transform::GetGlobalRotationMatrix() const
+//{
+//    return quaternion::to_matrix(m_globalOrientation);
+//}
+//
+//Transform::vec3 Transform::GetGlobalRotationDeg() const
+//{
+//    return glm::degrees(GetGlobalRotationRad());
+//}
+//
+//Transform::quat Transform::GetGlobalRotationQuat() const
+//{
+//    return m_globalOrientation;
+//}
+//
+//Transform::vec3 Transform::GetGlobalRotationRad() const
+//{
+//    return quaternion::to_euler(m_globalOrientation);
+//}
+//
+//Transform::vec3 Transform::GetGlobalScale() const
+//{
+//    return m_globalScale;
+//}
 
 void Transform::CalculateLocalTransform()
 {
@@ -165,17 +169,17 @@ void Transform::CalculateLocalTransform()
     m_localTransform = t * r * s;
 }
 
-void Transform::CalculateGlobalTransform()
-{
-    auto t = glm::translate(glm::mat4{ 1.f }, m_globalPosition);
-    auto r = glm::mat4{ quaternion::to_matrix(m_globalOrientation) };
-    auto s = glm::scale(glm::mat4{ 1.f }, m_globalScale);
-
-    m_globalTransform = t * r * s;
-
-    DecomposeValues(m_globalTransform, m_scale, m_orientation.value, m_position);
-    CalculateLocalTransform();
-}
+//void Transform::CalculateGlobalTransform()
+//{
+//    auto t = glm::translate(glm::mat4{ 1.f }, m_globalPosition);
+//    auto r = glm::mat4{ quaternion::to_matrix(m_globalOrientation) };
+//    auto s = glm::scale(glm::mat4{ 1.f }, m_globalScale);
+//
+//    m_globalTransform = t * r * s;
+//
+//    DecomposeValues(m_globalTransform, m_scale, m_orientation.value, m_position);
+//    CalculateLocalTransform();
+//}
 
 void Transform::DecomposeValues(mat4 matrix, glm::vec3& scale, glm::quat& orientation, glm::vec3& position)
 {
@@ -210,7 +214,7 @@ void Transform::DecomposeValues(mat4 matrix, glm::vec3& scale, glm::quat& orient
 
 void Transform::LookAt(vec3 target)
 {
-    m_localTransform = glm::lookAt(m_position, target, LocalUp());
+    m_localTransform = glm::lookAt(m_position, target, Up());
     DecomposeValues(m_localTransform, m_position, m_orientation.value, m_scale);
 }
 

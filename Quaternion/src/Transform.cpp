@@ -23,13 +23,13 @@ Transform3D::mat4 Transform3D::GetRotationMatrix() const { return quaternion::to
 
 //Transform3D::vec3 Transform3D::GetScale() const { return m_scale; }
 
-Transform3D::vec3 Transform3D::Right() const { return Transform[0]; }
+Transform3D::vec3 Transform3D::Right() const { return Matrix[0]; }
 
-Transform3D::vec3 Transform3D::Up() const { return Transform[1]; }
+Transform3D::vec3 Transform3D::Up() const { return Matrix[1]; }
 
-Transform3D::vec3 Transform3D::Forward() const { return Transform[2]; }
+Transform3D::vec3 Transform3D::Forward() const { return Matrix[2]; }
 
-Transform3D::mat4 Transform3D::GetMatrix() const { return Transform; }
+Transform3D::mat4 Transform3D::GetMatrix() const { return Matrix; }
 
 /*-----------------------------------------------------------------------------*/
 /* Setter Functions                                                            */
@@ -50,8 +50,8 @@ void Transform3D::SetRotation(quat quaternion)
 
 void Transform3D::SetTransform(mat4 desired_transform)
 {
-    Transform = desired_transform;
-    DecomposeValues(Transform, Position, Orientation.value, Scale);
+    Matrix = desired_transform;
+    DecomposeValues(Matrix, Position, Orientation.value, Scale);
 }
 
 void Transform3D::CalculateTransform()
@@ -60,7 +60,7 @@ void Transform3D::CalculateTransform()
     auto r = glm::mat4{ quaternion::to_matrix(Orientation) };
     auto s = glm::scale(glm::mat4{ 1.f }, Scale);
 
-    Transform = t * r * s;
+    Matrix = t * r * s;
 }
 
 void Transform3D::DecomposeValues(mat4 const matrix, glm::vec3& position, glm::quat& orientation, glm::vec3& scale)
@@ -73,8 +73,8 @@ void Transform3D::DecomposeValues(mat4 const matrix, glm::vec3& position, glm::q
 
 void Transform3D::LookAt(vec3 target)
 {
-    Transform = glm::lookAt(Position, target, Up());
-    DecomposeValues(Transform, Position, Orientation.value, Scale);
+    Matrix = glm::lookAt(Position, target, Up());
+    DecomposeValues(Matrix, Position, Orientation.value, Scale);
 }
 
 

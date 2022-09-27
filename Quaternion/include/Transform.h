@@ -47,8 +47,11 @@ public:
 
     static void DecomposeValues(mat4 const matrix, glm::vec3& scale, glm::quat& orientation, glm::vec3& position);
 
+    operator mat4() { return Matrix; }
+    operator const mat4() const { return Matrix; }
+
 public:
-    mat4 Transform = mat4{ 1.f };
+    mat4 Matrix = mat4{ 1.f };
     vec3 Position = vec3{ 0.f };
     quat Orientation = quat{ quat::identity() };          // used internally
     vec3 Scale = vec3{ 1.f };

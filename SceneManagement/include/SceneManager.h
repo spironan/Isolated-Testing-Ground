@@ -42,6 +42,7 @@ private:
     
     std::shared_ptr<IScene> m_loadingScene = nullptr;
     bool m_loading = false;
+    bool m_reload = false;
 
 public:
     SceneManager();

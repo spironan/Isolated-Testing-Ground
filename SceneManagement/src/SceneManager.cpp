@@ -89,8 +89,7 @@ bool SceneManager::ReloadActiveScene()
 {
     if (HasActiveScene())
     {
-        UnloadScene(m_activeScene);
-        LoadScene(m_activeScene);
+        m_reload = true;
         return true;
     }
 
@@ -110,6 +109,14 @@ void SceneManager::Init()
 void SceneManager::Update()
 {
     {
+        // Check For Scene Reloading note : intentional deferred to make it work with scripts.
+        if (m_reload)
+        {
+            UnloadScene(m_activeScene);
+            LoadScene(m_activeScene);
+            m_reload = false;
+        }
+
         //Check For Scene Changes
         if (m_nextScene != m_activeScene)
         {

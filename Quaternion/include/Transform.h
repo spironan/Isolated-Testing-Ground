@@ -44,6 +44,7 @@ public:
     // only allowing users to use the functions above this line.
     void CalculateTransform();
     void LookAt(vec3 target);
+    void GlobalLookAtDir(vec3 direction);
 
     static void DecomposeValues(mat4 const matrix, glm::vec3& scale, glm::quat& orientation, glm::vec3& position);
 

@@ -23,11 +23,11 @@ Transform3D::mat4 Transform3D::GetRotationMatrix() const { return quaternion::to
 
 //Transform3D::vec3 Transform3D::GetScale() const { return m_scale; }
 
-Transform3D::vec3 Transform3D::Right() const { return Matrix[0]; }
+Transform3D::vec3 Transform3D::Right() const { return glm::normalize(Matrix[0]); }
 
-Transform3D::vec3 Transform3D::Up() const { return Matrix[1]; }
+Transform3D::vec3 Transform3D::Up() const { return glm::normalize(Matrix[1]); }
 
-Transform3D::vec3 Transform3D::Forward() const { return Matrix[2]; }
+Transform3D::vec3 Transform3D::Forward() const { return glm::normalize(Matrix[2]); }
 
 Transform3D::mat4 Transform3D::GetMatrix() const { return Matrix; }
 

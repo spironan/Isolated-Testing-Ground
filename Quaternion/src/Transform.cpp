@@ -77,6 +77,11 @@ void Transform3D::LookAt(vec3 target)
     DecomposeValues(Matrix, Position, Orientation.value, Scale);
 }
 
+void Transform3D::GlobalLookAtDir(vec3 direction)
+{
+    LookAt(Position + direction);
+}
+
 
 std::ostream& operator<< (std::ostream& os, Transform3D::vec3 vector)
 {

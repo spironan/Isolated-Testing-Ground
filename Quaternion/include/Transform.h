@@ -43,8 +43,8 @@ public:
     // Functions and variables in the section below should be wrapped and hidden
     // only allowing users to use the functions above this line.
     void CalculateTransform();
-    void LookAt(vec3 target);
-    void GlobalLookAtDir(vec3 direction);
+    void LookAt(vec3 direction, vec3 up = vec3{ 0, 1, 0 });
+    void LookAtTarget(vec3 Target);
 
     static void DecomposeValues(mat4 const matrix, glm::vec3& scale, glm::quat& orientation, glm::vec3& position);
 

@@ -121,3 +121,11 @@ quaternion::reference quaternion::operator[](size_type index)
 {
     return value[static_cast<glm::length_t>(index)];
 }
+
+quaternion quaternion::look_rotation(glm::vec3 forward, glm::vec3 up)
+{
+    auto z = glm::normalize(forward);
+    auto x = glm::cross(z, up);
+    auto y = glm::cross(z, x);
+    return from_matrix(glm::mat3{ x, y, z });
+}

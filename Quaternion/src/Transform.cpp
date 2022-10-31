@@ -71,15 +71,22 @@ void Transform3D::DecomposeValues(mat4 const matrix, glm::vec3& position, glm::q
 
 }
 
-void Transform3D::LookAt(vec3 target)
+void Transform3D::LookAt(vec3 direction, vec3 up)
 {
-    Matrix = glm::lookAt(Position, target, Up());
-    DecomposeValues(Matrix, Position, Orientation.value, Scale);
+    quaternion result = quaternion::look_rotation(direction, up);
+    SetRotation(result);
+    //float euler_axis_x = std::atan2(normalized_direction.y, normalized_direction.z); //std::acosf(normalized_direction.z);
+    //float euler_axis_y = std::atan2(normalized_direction.z, normalized_direction.x); //std::acosf(normalized_direction.y);
+    //float euler_axis_z = std::atan2(normalized_direction.y, normalized_direction.x); //std::acosf(normalized_direction.x);
+    //glm::vec3 euler_angles = { euler_axis_x, euler_axis_y, euler_axis_z, };
+    //SetRotation(quaternion::from_euler(euler_angles));
+    //Matrix = glm::lookAt(Position, target, Up());
+    //DecomposeValues(Matrix, Position, Orientation.value, Scale);
 }
 
-void Transform3D::GlobalLookAtDir(vec3 direction)
+void Transform3D::LookAtTarget(vec3 target)
 {
-    LookAt(Position + direction);
+    LookAt(target - Position);
 }
 
 

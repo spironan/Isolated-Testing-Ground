@@ -70,6 +70,7 @@ public:
 
     static quaternion from_axis_angle(glm::vec3 axis_normalized, value_type angle);
 
+    static quaternion look_rotation(glm::vec3 forward, glm::vec3 up = glm::vec3{ 0, 1, 0 });
 public:
 
     quaternion(glm::quat quaternion)

@@ -65,14 +65,16 @@ quaternion::value_type quaternion::dot(quaternion const& lhs, quaternion const& 
 
 quaternion quaternion::from_euler(euler const& euler_angle_radians)
 {
-    return quaternion::from_matrix(glm::eulerAngleYXZ(euler_angle_radians.x, euler_angle_radians.y, euler_angle_radians.z));
+    return quaternion::from_matrix(glm::eulerAngleYXZ(euler_angle_radians.y, euler_angle_radians.x, euler_angle_radians.z));
+    //return quaternion::from_matrix(glm::eulerAngleZXY(euler_angle_radians.x, euler_angle_radians.y, euler_angle_radians.z));
 }
 
 // euler return is in radians.
 quaternion::euler quaternion::to_euler(quaternion const& q)
 {
     euler result;
-    glm::extractEulerAngleYXZ(static_cast<glm::mat4>(quaternion::to_matrix(q)), result.x, result.y, result.z);
+    glm::extractEulerAngleYXZ(static_cast<glm::mat4>(quaternion::to_matrix(q)), result.y, result.x, result.z);
+    //glm::extractEulerAngleZXY(static_cast<glm::mat4>(quaternion::to_matrix(q)), result.x, result.y, result.z);
     return result;
 }
 

@@ -1,5 +1,6 @@
 #include "Quaternion/include/Quaternion.h"
 #include <glm/gtc/type_ptr.hpp> 
+#include <glm/gtx/euler_angles.hpp>
 
 quaternion quaternion::identity()
 {
@@ -64,20 +65,15 @@ quaternion::value_type quaternion::dot(quaternion const& lhs, quaternion const& 
 
 quaternion quaternion::from_euler(euler const& euler_angle_radians)
 {
-    return glm::quat(euler_angle_radians);
-    
-    // might need to play around and switch around
-    //quaternion quatAroundX = quaternion{ {1.0, 0.0, 0.0}, euler_angle_radians.x };
-    //quaternion quatAroundY = quaternion{ {0.0, 1.0, 0.0}, euler_angle_radians.y };
-    //quaternion quatAroundZ = quaternion{ {0.0, 0.0, 1.0}, euler_angle_radians.z };
-    //quaternion finalOrientation = quatAroundY * quatAroundZ * quatAroundX ;
-    //return finalOrientation;
+    return quaternion::from_matrix(glm::eulerAngleYXZ(euler_angle_radians.x, euler_angle_radians.y, euler_angle_radians.z));
 }
 
 // euler return is in radians.
 quaternion::euler quaternion::to_euler(quaternion const& q)
 {
-    return glm::eulerAngles(q.value);
+    euler result;
+    glm::extractEulerAngleYXZ(static_cast<glm::mat4>(quaternion::to_matrix(q)), result.x, result.y, result.z);
+    return result;
 }
 
 std::tuple<glm::vec3, quaternion::value_type> quaternion::to_axis_angle(quaternion q1)

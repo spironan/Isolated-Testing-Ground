@@ -12,18 +12,20 @@ int main()
 
     //std::this_thread::sleep_for(std::chrono::seconds(1));
 
-    jobsystem::work some_work;
-    some_work.fnc = []() {  std::cout << "[task " << ++total_work_count << "] doing some fake work! \n";  };
-    jobsystem::work some_work_2;
-    some_work_2.fnc = []() { std::cout << "[task " << ++total_work_count << "] doing some fake work! \n"; };
-    jobsystem::submit(std::move(some_work));
-    for (int i = 0; i < 500; ++i)
-        jobsystem::submit(some_work_2);
 
     jobsystem::initialize();
-    
-    //std::this_thread::sleep_for(std::chrono::seconds(1));
-    
+
+    jobsystem::work some_work;
+    some_work.fnc = []() {  std::cout << "[task " << ++total_work_count << "] doing some fake work! \n";  };
+    jobsystem::submit(std::move(some_work));
+    jobsystem::wait();
+
+    jobsystem::work some_work_2;
+    some_work_2.fnc = []() { std::cout << "[task " << ++total_work_count << "] doing some fake work! \n"; };
+    for (int i = 0; i < 50000; ++i)
+        jobsystem::submit(some_work_2);
+    jobsystem::wait();
+
     //std::this_thread::sleep_for(std::chrono::seconds(1));
 
     jobsystem::shutdown();

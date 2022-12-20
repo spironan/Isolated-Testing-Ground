@@ -14,6 +14,7 @@ namespace jobsystem
     };
 
     void submit(work work);
+    void wait();
     //void submit(work const& work);
 
     //// job is not done immediately, you are expected to wait.
@@ -23,11 +24,9 @@ namespace jobsystem
     //    
     //}
 
-
-    /*namespace internal
+    namespace internal
     {
-        static uint32_t globalWorkerThreadCount;
+        void do_once();
+    }
 
-
-    }*/
 }

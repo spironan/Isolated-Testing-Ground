@@ -12,7 +12,7 @@
 
 namespace jobsystem
 {
-    static std::uint32_t globalWorkerThreadCount = std::thread::hardware_concurrency() - 2;
+    static std::uint32_t globalWorkerThreadCount = std::clamp(globalWorkerThreadCount, 2u, std::max(2u, std::thread::hardware_concurrency() - 3));
     static std::vector<std::thread> workers;
     std::thread deliveryThread;
 
@@ -23,12 +23,13 @@ namespace jobsystem
     static std::mutex write_mutex;
     static std::mutex work_mutex;
 
-    static std::latch initialization_latch = std::latch{ globalWorkerThreadCount + 1 + 1}; // whatever number of workers we desire, we must + 1 to account for submit and another for main.
+    static std::latch initialization_latch = std::latch(globalWorkerThreadCount + 1 + 1); // whatever number of workers we desire, we must + 1 to account for submit and another for main.
     static std::once_flag initialization_submit;
     
     static std::atomic_bool shutdown_system{ false };
     static std::atomic_bool shutdown_delivery{ false };
 
+    static std::binary_semaphore queue_is_empty{ true };
     void initialize()
     {
         std::cout << "jobsystem attempting initialization.... \n";
@@ -59,15 +60,18 @@ namespace jobsystem
 
                 if (work_queue.size() > 0)
                 {
-                    worker_thread_logging("work detected!");
+                    //worker_thread_logging("work detected!");
 
                     auto work = work_queue.try_pop();
                     if (work)
                     {
-                        worker_thread_logging("doing some work!");
+                        //worker_thread_logging("doing some work!");
                         std::invoke(work->fnc);
                     }
+                    std::this_thread::yield();
                 }
+                
+                std::this_thread::yield();
             }
 
             worker_thread_logging("Worker thread terminating!");
@@ -92,6 +96,11 @@ namespace jobsystem
 
                 if(work_queue.size() > 0)
                     cv.notify_all();
+
+                if (work_queue.size() == 0)
+                    queue_is_empty.release();
+                
+                std::this_thread::yield();
             }
         };
         deliveryThread = std::thread{ delivery_thread_function };
@@ -106,6 +115,8 @@ namespace jobsystem
             std::cout << "jobsystem is not yet initialized! do not call shutdown! \n";
             return;
         }
+        
+        internal::do_once();
 
         std::cout << "jobsystem attempting shutdown.... \n";
         shutdown_system = true;
@@ -127,39 +138,31 @@ namespace jobsystem
 
         work_queue.push(work);
 
-        std::call_once(initialization_submit, [&]()
-        {
-            // we do this to ensure until you submit the first task, every worker just waits.
-            initialization_latch.count_down(); 
-
-            std::lock_guard lk(write_mutex);
-            auto tid = std::this_thread::get_id();
-            std::cout << tid << "[main]: activate intialization submit once!" << "\n";
-        });
+        internal::do_once();
 
         cv.notify_all();
     }
 
-    //void submit(work const& work)
-    //{
-    //    std::unique_lock<std::mutex> lk(work_mutex);
-
-    //    work_queue.push(work);
-
-    //    std::call_once(initialization_submit, [&]()
-    //        {
-    //            // we do this to ensure until you submit the first task, every worker just waits.
-    //            initialization_latch.count_down();
-
-    //            std::lock_guard lk(write_mutex);
-    //            auto tid = std::this_thread::get_id();
-    //            std::cout << tid << "[main]: activate intialization submit once!" << "\n";
-    //        });
-
-    //    cv.notify_one();
-    //}
-
-    /*namespace internal
+    void wait()
     {
-    }*/
+        internal::do_once();
+        // blocking call that stalls this thread and waits for queue to be empty!
+        queue_is_empty.acquire();
+    }
+
+    namespace internal
+    {
+        void do_once()
+        {
+            std::call_once(initialization_submit, [&]()
+                {
+                    // we do this to ensure until you submit the first task, every worker just waits.
+                    initialization_latch.count_down();
+
+                    std::lock_guard lk(write_mutex);
+                    auto tid = std::this_thread::get_id();
+                    std::cout << tid << "[main]: jobsystem do once decrement!" << "\n";
+                });
+        }
+    }
 }

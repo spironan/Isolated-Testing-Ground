@@ -27,12 +27,14 @@ public:
     void detach();
     bool add_child(shared_pointer node);
 
+    bool has_child() const;
     bool contains(shared_pointer node) const;
     std::size_t get_direct_child_count() const;
     std::size_t get_total_child_count() const;
     handle_type get_handle() const;
     handle_type get_parent_handle() const;
     weak_pointer get_parent() const;
+    std::uint32_t get_depth() const;
     std::vector<handle_type> get_all_child_handles(bool includeItself = false) const;
     std::vector<handle_type> get_direct_child_handles(bool includeItself = false) const;
     void print_recursive() const;
@@ -55,6 +57,7 @@ private:
     std::vector<shared_pointer> m_childs = {};
     std::string m_debugName = "default name";
     handle_type m_handle = NOTFOUND;
+    std::uint32_t m_depth = 0;
 
 private:
     void print_recursive(size_t depth, bool printParent = true, bool printChilds = true) const;

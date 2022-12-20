@@ -60,6 +60,11 @@ void scenenode::rearrange_childs(shared_pointer src_child, shared_pointer target
     }
 }
 
+bool scenenode::has_child() const
+{
+    return m_childs.size() > 0;
+}
+
 bool scenenode::contains(shared_pointer node) const
 {
     if (node == nullptr)
@@ -80,6 +85,8 @@ void scenenode::detach()
     {
         parent->remove(shared_from_this());
         m_parent.reset();
+        //reset our depth
+        m_depth = 0;
     }
 }
 
@@ -101,6 +108,7 @@ bool scenenode::add_child(shared_pointer node)
     // performing re-pointing
     node->m_parent = shared_from_this();
     m_childs.emplace_back(node);
+    node->m_depth = m_depth + 1;
 
     return true;
 }
@@ -133,6 +141,11 @@ scenenode::handle_type scenenode::get_parent_handle() const
 scenenode::weak_pointer scenenode::get_parent() const
 {
     return m_parent;
+}
+
+std::uint32_t scenenode::get_depth() const
+{
+    return m_depth;
 }
 
 std::vector<scenenode::handle_type> scenenode::get_all_child_handles(bool includeItself) const

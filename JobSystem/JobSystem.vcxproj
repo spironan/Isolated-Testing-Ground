@@ -40,7 +40,7 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
@@ -146,6 +146,7 @@
     <ClInclude Include="src\2nd Attempt\JobSystem2.h" />
     <ClInclude Include="src\containers\threadsafe_queue.h" />
     <ClInclude Include="src\containers\threadsafe_stack.h" />
+    <ClInclude Include="src\final\jobs.h" />
     <ClInclude Include="src\JobSystem.h" />
     <ClInclude Include="src\ThreadPool\ThreadPool.h" />
     <ClInclude Include="src\ThreadPool\ThreadPoolTest.h" />
@@ -154,7 +155,9 @@
     <ClInclude Include="src\WorkStealingQueue.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="main-old.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\final\jobs.cpp" />
     <ClCompile Include="src\JobSystem.cpp" />
     <ClCompile Include="src\ThreadPool\ThreadPool.cpp" />
   </ItemGroup>

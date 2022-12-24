@@ -82,6 +82,7 @@ namespace jobsystem
     auto main_thread_work = [&](std::stop_token stop_token)
     {
         // while there's work to be done or system is not told to shutdown
+
         while (!work_queue.empty())
         {
             // attempt to grab some work and perform them if there is.
@@ -101,6 +102,40 @@ namespace jobsystem
         }
     };
 
+    auto future_is_ready = [](job& job)
+    {
+        for (auto& fu : job.tasks)
+        {
+            auto we_wait = fu.wait_for(std::chrono::nanoseconds(10));
+            if (we_wait == std::future_status::timeout)
+                return false;
+        }
+
+        // all futures are completed or corrupted.
+        return true;
+    };
+    auto main_thread_work_with_jobs = [&](std::stop_token stop_token, job& job)
+    {
+        // while there's work to be done or system is not told to shutdown
+
+        while (!future_is_ready(job))
+        {
+            // attempt to grab some work and perform them if there is.
+            {
+                //threadsafe_logging("worker", "work detected!");
+
+                auto work = work_queue.try_pop();
+                if (work)
+                {
+                    //threadsafe_logging("worker", "doing some work!");
+                    //std::invoke(work->fnc);
+                    std::invoke(*work);
+                }
+                else
+                    std::this_thread::yield();
+            }
+        }
+    };
 
     void initialize()
     {
@@ -162,9 +197,13 @@ namespace jobsystem
         std::invoke(main_thread_work, shutdown_source.get_token());
     }
     
+
     void wait(job& job)
     {
-        for (auto& fu : job.tasks)
-            fu.get();
+        // we do this so our thread still does work instead of afking while waiting for futures to be done.
+        std::invoke(main_thread_work_with_jobs, shutdown_source.get_token(), job);
+        // get rid of all the jobs we've done.
+        job.tasks.clear();
+
     }
 }

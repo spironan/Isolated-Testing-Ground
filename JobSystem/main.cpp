@@ -9,22 +9,53 @@ static std::uint32_t total_work_count = 0;
 
 int main()
 {
-
-    //std::this_thread::sleep_for(std::chrono::seconds(1));
-
-
     jobsystem::initialize();
 
-    jobsystem::work some_work;
-    some_work.fnc = []() {  std::cout << "[task " << ++total_work_count << "] doing some fake work! \n";  };
-    jobsystem::submit(std::move(some_work));
-    jobsystem::wait();
+    {
+        // Choice 1 : simpliest
+        auto test_fnc = []() {  std::cout << "[task " << ++total_work_count << "] doing some fake work! \n";  };
+        /*jobsystem::work some_work;
+        some_work.fnc = */
+        jobsystem::submit(test_fnc);
+        jobsystem::wait();
+    }
 
-    jobsystem::work some_work_2;
-    some_work_2.fnc = []() { std::cout << "[task " << ++total_work_count << "] doing some fake work! \n"; };
-    for (int i = 0; i < 50000; ++i)
-        jobsystem::submit(some_work_2);
-    jobsystem::wait();
+
+    {
+        // Choice 2 : handle futures yourself.
+        std::vector<std::future<void>> result;
+        auto task_2 = []() { std::cout << "[task " << ++total_work_count << "] doing some fake work! \n"; };
+        for (int i = 0; i < 1000; ++i)
+            result.emplace_back(jobsystem::submit(task_2));
+
+        for (auto& fu : result)
+            fu.get();
+    }
+
+    {
+        // Choice 3 : use the job to handle for you
+        jobsystem::job job{};
+    
+        auto task_3 = []() 
+        { 
+            std::cout << "[task " << ++total_work_count << "] doing some fake work! \n"; 
+            static thread_local int sub_task_count = 0;
+
+            auto mini_task = []() { std::cout << "[" << std::this_thread::get_id()  << "]\t doing sub-task " << ++sub_task_count << "!\n"; };
+            
+            jobsystem::job sub_job{};
+            
+            for(int i = 0; i < 10; ++i)
+                jobsystem::submit(mini_task);
+            
+            jobsystem::wait(sub_job);
+        };
+
+        for (int i = 0; i < 10; ++i)
+            jobsystem::submit(job, task_3);
+    
+        jobsystem::wait(job);
+    }
 
     //std::this_thread::sleep_for(std::chrono::seconds(1));
 

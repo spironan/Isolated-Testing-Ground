@@ -8,161 +8,163 @@
 #include <condition_variable>
 #include <mutex>
 #include <semaphore>
+#include <barrier>
 #include "../containers/threadsafe_queue.h"
 
 namespace jobsystem
 {
-    static std::uint32_t globalWorkerThreadCount = std::clamp(globalWorkerThreadCount, 2u, std::max(2u, std::thread::hardware_concurrency() - 3));
-    static std::vector<std::thread> workers;
-    std::thread deliveryThread;
+    static std::uint32_t global_worker_thread_count = std::thread::hardware_concurrency() - 1; //std::clamp(global_worker_thread_count, 2u, std::max(2u, std::thread::hardware_concurrency() - 2));
+    static std::vector<std::jthread> worker_threads{};
 
-    static ts::threadsafe_queue<work> work_queue;
-    static std::condition_variable cv;
-    //static std::unique_lock<std::mutex> work_lock;
+    static ts::threadsafe_queue<packaged_t> work_queue;
+    static std::condition_variable_any cv_any;
 
     static std::mutex write_mutex;
     static std::mutex work_mutex;
 
-    static std::latch initialization_latch = std::latch(globalWorkerThreadCount + 1 + 1); // whatever number of workers we desire, we must + 1 to account for submit and another for main.
-    static std::once_flag initialization_submit;
-    
-    static std::atomic_bool shutdown_system{ false };
-    static std::atomic_bool shutdown_delivery{ false };
+    // used to synchronize initialization of threads.
+    static std::latch init_latch = std::latch(global_worker_thread_count + 1); // number of workers we desire and + 1 to account for main.
 
-    static std::binary_semaphore queue_is_empty{ true };
+    static std::stop_source shutdown_source;
+
+    auto threadsafe_logging = [&](std::string prefix, std::string msg)
+    {
+        if constexpr (enable_logging == false)
+            return;
+
+        std::scoped_lock lk(write_mutex);
+        auto tid = std::this_thread::get_id();
+        std::cout << "[" << prefix << "-" << tid << "]:\t" << msg << "\n";
+    };
+
+    auto worker_thread_function = [&](std::stop_token stop_token)
+    {
+        init_latch.arrive_and_wait();
+
+        // we only reach here once every thread is loaded. workers and main.
+
+        threadsafe_logging("worker", "worker thread is activated!");
+
+        // while there's work to be done or system is not told to shutdown
+        while (!work_queue.empty() || !stop_token.stop_requested())
+        {
+            //an attempt to avoid busy wait.
+            {
+                std::unique_lock worker_lk(work_mutex);
+                while (work_queue.empty())
+                {
+                    // check if cancellation of worker threads was requested.
+                    if (cv_any.wait(worker_lk, stop_token, [&]() { return !work_queue.empty(); }) == false)
+                    {
+                        threadsafe_logging("worker", "worker thread terminating...");
+                        return;
+                    }
+                }
+            }
+
+            // attempt to grab some work and perform them if there is.
+            {
+                //threadsafe_logging("worker", "work detected!");
+
+                //auto work = work_queue.wait_and_pop();
+                auto work = work_queue.try_pop();
+                if (work)
+                {
+                    //threadsafe_logging("worker", "doing some work!");
+                    std::invoke(*work);
+                }
+                else
+                    std::this_thread::yield();
+            }
+        }
+    };
+
+    auto main_thread_work = [&](std::stop_token stop_token)
+    {
+        // while there's work to be done or system is not told to shutdown
+        while (!work_queue.empty())
+        {
+            // attempt to grab some work and perform them if there is.
+            {
+                //threadsafe_logging("worker", "work detected!");
+
+                auto work = work_queue.try_pop();
+                if (work)
+                {
+                    //threadsafe_logging("worker", "doing some work!");
+                    //std::invoke(work->fnc);
+                    std::invoke(*work);
+                }
+                else
+                    std::this_thread::yield();
+            }
+        }
+    };
+
+
     void initialize()
     {
-        std::cout << "jobsystem attempting initialization.... \n";
+        threadsafe_logging("main", "jobsystem attempting initialization....");
 
-        //std::latch shutdown_latch = std::latch{ globalWorkerThreadCount };
-
-        auto worker_thread_logging = [&](std::string msg)
+        // initialize all worker threads.
+        for (std::size_t i = 0; i < global_worker_thread_count; i++)
         {
-            std::lock_guard lk(write_mutex);
-            auto tid = std::this_thread::get_id();
-            std::cout << tid << "[worker]:" << msg << "\n";
-        };
-
-        auto worker_thread_function = [&]()
-        {
-            initialization_latch.arrive_and_wait();
-            
-            // we only reach here once we submitted at least one task.
-
-            worker_thread_logging("thread is activated!");
-
-            // while there's work to be done or system is not told to shutdown
-            while (work_queue.size() > 0 || shutdown_system == false)
-            {
-                //grab mutex and wait
-                //std::unique_lock worker_lk(work_mutex);
-                //cv.wait(worker_lk, [&]() { return work_queue.size() > 0 || shutdown_system == true; });
-
-                if (work_queue.size() > 0)
-                {
-                    //worker_thread_logging("work detected!");
-
-                    auto work = work_queue.try_pop();
-                    if (work)
-                    {
-                        //worker_thread_logging("doing some work!");
-                        std::invoke(work->fnc);
-                    }
-                    std::this_thread::yield();
-                }
-                
-                std::this_thread::yield();
-            }
-
-            worker_thread_logging("Worker thread terminating!");
-        };
-
-        for (std::size_t i = 0; i < globalWorkerThreadCount; i++)
-        {
-            std::thread t{ worker_thread_function };
-            workers.emplace_back(std::move(t));
-            //workers.emplace_back(worker_thread_function);
+            std::jthread t{ worker_thread_function, shutdown_source.get_token() };
+            worker_threads.emplace_back(std::move(t));
         }
 
-        auto delivery_thread_function = [&]() 
-        {
-            initialization_latch.arrive_and_wait();
+        threadsafe_logging("main", std::to_string(worker_threads.size()) + " worker threads initialized....");
 
-            while (shutdown_delivery == false)
-            {
-                std::this_thread::sleep_for(std::chrono::seconds(1/60));
-                
-                //std::unique_lock<std::mutex> lk(work_mutex);
+        threadsafe_logging("main", "jobsystem main thread initialized!");
+        init_latch.count_down();
 
-                if(work_queue.size() > 0)
-                    cv.notify_all();
-
-                if (work_queue.size() == 0)
-                    queue_is_empty.release();
-                
-                std::this_thread::yield();
-            }
-        };
-        deliveryThread = std::thread{ delivery_thread_function };
-
-        std::cout << "jobsystem successfully initialized. \n";
+        threadsafe_logging("main", "jobsystem successfully initialized!");
     }
 
     void shutdown()
     {
-        if (shutdown_system == true)
-        {
-            std::cout << "jobsystem is not yet initialized! do not call shutdown! \n";
-            return;
-        }
-        
-        internal::do_once();
+        threadsafe_logging("main", "jobsystem attempting shutdown...");
 
-        std::cout << "jobsystem attempting shutdown.... \n";
-        shutdown_system = true;
+        // request all other threads to shut down!
+        shutdown_source.request_stop();
 
-        for (auto& worker : workers)
+        // Gather all worker threads
+        for (auto& worker : worker_threads)
         {
             worker.join();
         }
 
-        shutdown_delivery = true;
-        deliveryThread.join();
-
-        std::cout << "jobsystem successfully shutdown. \n";
+        threadsafe_logging("main", "jobsystem successfully shutdown!!");
     }
 
-    void submit(work work)
+
+    return_t submit(functor_t functor)
     {
-        std::unique_lock<std::mutex> lk(work_mutex);
+        std::packaged_task<void(void)> new_work{ functor };
+        return_t future = new_work.get_future();
+        work_queue.push(std::move(new_work));
 
-        work_queue.push(work);
+        cv_any.notify_one();
 
-        internal::do_once();
+        return future;
+    }
 
-        cv.notify_all();
+    void submit(job& job, functor_t functor)
+    {
+        job.tasks.emplace_back(submit(functor));
     }
 
     void wait()
     {
-        internal::do_once();
+        // busy wait. [TODO] Change to std::future instead.
         // blocking call that stalls this thread and waits for queue to be empty!
-        queue_is_empty.acquire();
+        //while(!work_queue.empty());
+        std::invoke(main_thread_work, shutdown_source.get_token());
     }
-
-    namespace internal
+    
+    void wait(job& job)
     {
-        void do_once()
-        {
-            std::call_once(initialization_submit, [&]()
-                {
-                    // we do this to ensure until you submit the first task, every worker just waits.
-                    initialization_latch.count_down();
-
-                    std::lock_guard lk(write_mutex);
-                    auto tid = std::this_thread::get_id();
-                    std::cout << tid << "[main]: jobsystem do once decrement!" << "\n";
-                });
-        }
+        for (auto& fu : job.tasks)
+            fu.get();
     }
 }

@@ -73,6 +73,18 @@ namespace ts
             --count;
             return old_head;
         }
+        
+        //// waits for the queue to have some data to pop
+        //// this function ensures the same lock is held while the data 
+        //// is modified by the relevant wait_pop_head()
+        //std::unique_lock<std::mutex> wait_for_data(std::stop_token stop_token)
+        //{
+        //    std::unique_lock<std::mutex> head_lock{ head_mutex };
+        //    if (data_cv.wait(head_lock, stop_token, [&]() { return head.get() != get_tail(); }) == false)
+        //        return;
+
+        //    return std::move(head_lock);
+        //}
 
         // waits for the queue to have some data to pop
         // this function ensures the same lock is held while the data 

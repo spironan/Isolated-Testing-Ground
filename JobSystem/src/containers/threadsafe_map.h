@@ -15,7 +15,8 @@ namespace ts
     {
     public:
         using key_type      = Key;
-        using value_type    = Value;
+        using mapped_type   = Value;
+        using value_type    = std::pair<const Key, Value>;
         using hash_type     = Hash;
         using size_type     = std::size_t;
 

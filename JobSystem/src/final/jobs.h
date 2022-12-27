@@ -20,8 +20,15 @@ namespace jobsystem
     return_t submit(functor_t functor);
     void submit(job& job, functor_t functor);
 
+    void launch(job& job);
+
     void wait();
     void wait(job& job);
+
+    return_t submit_and_launch(functor_t functor);
+    void submit_and_launch(job& job, functor_t functor);
+
+    void launch_and_wait(job& job);
 
     void initialize();
     void shutdown();

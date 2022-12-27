@@ -114,6 +114,7 @@ namespace jobsystem
         // all futures are completed or corrupted.
         return true;
     };
+
     auto main_thread_work_with_jobs = [&](std::stop_token stop_token, job& job)
     {
         // while there's work to be done or system is not told to shutdown
@@ -172,14 +173,11 @@ namespace jobsystem
         threadsafe_logging("main", "jobsystem successfully shutdown!!");
     }
 
-
     return_t submit(functor_t functor)
     {
         std::packaged_task<void(void)> new_work{ functor };
         return_t future = new_work.get_future();
         work_queue.push(std::move(new_work));
-
-        cv_any.notify_one();
 
         return future;
     }
@@ -189,6 +187,12 @@ namespace jobsystem
         job.tasks.emplace_back(submit(functor));
     }
 
+    void launch(job& job)
+    {
+        for (size_t i = 0; i < job.tasks.size(); ++i)
+            cv_any.notify_one();
+    }
+
     void wait()
     {
         // busy wait. [TODO] Change to std::future instead.
@@ -196,7 +200,7 @@ namespace jobsystem
         //while(!work_queue.empty());
         std::invoke(main_thread_work, shutdown_source.get_token());
     }
-    
+
 
     void wait(job& job)
     {
@@ -204,6 +208,28 @@ namespace jobsystem
         std::invoke(main_thread_work_with_jobs, shutdown_source.get_token(), job);
         // get rid of all the jobs we've done.
         job.tasks.clear();
+    }
 
+    return_t submit_and_launch(functor_t functor)
+    {
+        std::packaged_task<void(void)> new_work{ functor };
+        return_t future = new_work.get_future();
+        work_queue.push(std::move(new_work));
+
+        // launch work immediately.
+        cv_any.notify_one();
+
+        return future;
+    }
+
+    void submit_and_launch(job& job, functor_t functor)
+    {
+        job.tasks.emplace_back(submit_and_launch(functor));
+    }
+
+    void launch_and_wait(job& job)
+    {
+        launch(job);
+        wait(job);
     }
 }

@@ -57,9 +57,9 @@ void Transform3D::SetTransform(mat4 desired_transform)
 void Transform3D::CalculateTransform()
 {
     auto t = glm::translate(glm::mat4{ 1.f }, Position);
-    auto r = glm::mat4{ quaternion::to_matrix(Orientation) };
+    auto r = glm::mat4_cast(Orientation.value);
     auto s = glm::scale(glm::mat4{ 1.f }, Scale);
-
+    
     Matrix = t * r * s;
 }
 

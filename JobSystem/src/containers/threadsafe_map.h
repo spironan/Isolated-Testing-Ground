@@ -16,7 +16,7 @@ namespace ts
     public:
         using key_type      = Key;
         using mapped_type   = Value;
-        using value_type    = std::pair<const Key, Value>;
+        //using value_type    = std::pair<const Key, Value>;
         using hash_type     = Hash;
         using size_type     = std::size_t;
 
@@ -31,12 +31,12 @@ namespace ts
         {
             for (size_type i = 0; i < bucket_count; ++i)
             {
-                buckets[i].reset(std::make_unique<bucket>());
+                buckets[i].reset(new bucket);
             }
         }
         ~threadsafe_map() = default;
 
-        threadsafe_map(threadsafe_lookup_table const& other) = delete;
+        threadsafe_map(threadsafe_map const& other) = delete;
         threadsafe_map& operator=(threadsafe_map const& other) = delete;
 
     private:
@@ -45,35 +45,46 @@ namespace ts
         public:
             using value_type = std::pair<Key, Value>;
             using container_type = std::list<value_type>;
-            using iterator = typename value_type::iterator;
+            using const_iterator = typename container_type::const_iterator;
+            using iterator = typename container_type::iterator;
             using mutex_type = std::shared_mutex;
         
         private:
-            container_type container;
+            std::list<std::pair<Key, Value>> container;
             mutable mutex_type mutex;
 
-            iterator find_entry_for(Key const& key) const
+            iterator find_entry_for(Key const& key)
             {
                 return std::find_if(container.begin(), container.end(), 
-                    [&](value_type const& item) 
+                    [&](std::pair<Key, Value> item)
                     { 
+                        //return false;
                         return item.first == key; 
                     });
             }
 
+            const_iterator find_entry_for(Key const& key) const
+            {
+                return std::find_if(container.cbegin(), container.cend(),
+                    [&](std::pair<Key, Value> item)
+                    {
+                        //return false;
+                        return item.first == key;
+                    });
+            }
         public:
             
             Value at(Key const& key, Value const& default_value) const
             {
                 std::shared_lock<std::shared_mutex> lock{ mutex };
-                iterator const found_entry = find_entry_for(key);
+                const_iterator found_entry = find_entry_for(key);
                 return (found_entry == container.end()) ? default_value : found_entry->second;
             }
 
             void insert_or_update(Key const& key, Value const& value)
             {
                 std::unique_lock<std::shared_mutex> lock { mutex };
-                iterator const found_entry = find_entry_for(key);
+                iterator found_entry = find_entry_for(key);
                 if (found_entry == container.end())
                 {
                     container.push_back(value_type(key, value));
@@ -87,7 +98,7 @@ namespace ts
             void erase(Key const& key)
             {
                 std::unique_lock<std::shared_mutex> lock{ mutex };
-                iterator const found_entry = find_entry_for(key);
+                iterator found_entry = find_entry_for(key);
                 if (found_entry != container.end())
                 {
                     container.erase(found_entry);

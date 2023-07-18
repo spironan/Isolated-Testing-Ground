@@ -76,6 +76,7 @@ public:
     bool HasLoadingScene() const;
     std::weak_ptr<IScene> GetActiveScene() const;
     std::weak_ptr<IScene> GetScene(key_type id) const;
+    std::weak_ptr<IScene> GetScene(std::string_view name) const;
     bool HasScene(key_type id) const;
     bool IsActiveScene(key_type id) const;
 

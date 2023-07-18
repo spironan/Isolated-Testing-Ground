@@ -32,6 +32,12 @@ std::weak_ptr<IScene> SceneManager::GetScene(key_type id) const
     return m_scenes.at(id);
 }
 
+std::weak_ptr<IScene> SceneManager::GetScene(std::string_view name) const
+{
+    key_type key = util::StringHash::GenerateFNV1aHash(name);
+    return GetScene(key);
+}
+
 bool SceneManager::HasScene(key_type id) const
 {
     return m_scenes.contains(id);
